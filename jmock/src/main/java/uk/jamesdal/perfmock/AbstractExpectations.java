@@ -299,7 +299,7 @@ public abstract class AbstractExpectations implements ExpectationBuilder,
     }
 
     public static PerfModel milli(double milli) {
-        return new Constant(milli * 1000);
+        return new Constant(milli);
     }
 
     public static PerfModel milli(PerfModel model) {

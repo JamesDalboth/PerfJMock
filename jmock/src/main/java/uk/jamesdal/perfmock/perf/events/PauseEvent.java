@@ -3,8 +3,12 @@ package uk.jamesdal.perfmock.perf.events;
 import uk.jamesdal.perfmock.perf.SimEvent;
 
 public class PauseEvent extends SimEvent {
-    public PauseEvent(double simTime) {
+
+    private final long runTime;
+
+    public PauseEvent(double simTime, long runTime) {
         super(simTime);
+        this.runTime = runTime;
     }
 
     @Override

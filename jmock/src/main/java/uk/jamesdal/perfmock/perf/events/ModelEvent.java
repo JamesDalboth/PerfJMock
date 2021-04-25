@@ -3,8 +3,12 @@ package uk.jamesdal.perfmock.perf.events;
 import uk.jamesdal.perfmock.perf.SimEvent;
 
 public class ModelEvent extends SimEvent {
-    public ModelEvent(double simTime) {
+
+    private final double sampledModelTime;
+
+    public ModelEvent(double simTime, double sampledModelTime) {
         super(simTime);
+        this.sampledModelTime = sampledModelTime;
     }
 
     @Override

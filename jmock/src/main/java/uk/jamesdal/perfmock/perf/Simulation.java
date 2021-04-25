@@ -28,13 +28,13 @@ public class Simulation {
 
     // Add play event for current thread
     public void play() {
-        long curTime = System.currentTimeMillis();
-        PlayEvent playEvent = new PlayEvent(getSimTime(), curTime);
-
         // Check last play/pause event is either pause or null
         long id = Thread.currentThread().getId();
         SimEvent last = getLastPlayPauseEvent(history, id, history.size() - 1);
+
         if (Objects.isNull(last) || last.getType() == EventTypes.PAUSE) {
+            long curTime = System.currentTimeMillis();
+            PlayEvent playEvent = new PlayEvent(getSimTime(), curTime);
             addEvent(playEvent);
         }
     }
@@ -46,6 +46,7 @@ public class Simulation {
 
     // Add pause event for given thread
     public void pause(long id) {
+        long curTime = System.currentTimeMillis();
         // Find matching play event
         SimEvent last = getLastPlayPauseEvent(history, id, history.size() - 1);
 
@@ -55,10 +56,10 @@ public class Simulation {
         }
         PlayEvent playEvent = (PlayEvent) last;
 
-        long curTime = System.currentTimeMillis();
+
         long diff = curTime - playEvent.getRunTime();
 
-        addEvent(new PauseEvent(getSimTime(id) + diff), id);
+        addEvent(new PauseEvent(getSimTime(id) + diff, curTime), id);
     }
 
     public void setUpNewThreads(long parent, long child) {
@@ -84,7 +85,7 @@ public class Simulation {
     }
 
     public void add(double time) {
-        addEvent(new ModelEvent(getSimTime() + time));
+        addEvent(new ModelEvent(getSimTime() + time, time));
     }
 
     public double getSimTime() {
@@ -96,19 +97,6 @@ public class Simulation {
             return 0.0;
         }
         return backwardsSearch(history, null, id).getSimTime();
-    }
-
-    public void genReport() {
-        reportGenerator.setStats(getStats());
-        reportGenerator.generateReport();
-    }
-
-    public void setReportGenerator(ReportGenerator reportGenerator) {
-        this.reportGenerator = reportGenerator;
-    }
-
-    public PerfStatistics getStats() {
-        return new PerfStatistics(results);
     }
 
     public synchronized void addEvent(SimEvent event) {
@@ -195,5 +183,16 @@ public class Simulation {
         callableHashMap.put(id, callable);
     }
 
+    public void genReport() {
+        reportGenerator.setStats(getStats());
+        reportGenerator.generateReport();
+    }
 
+    public void setReportGenerator(ReportGenerator reportGenerator) {
+        this.reportGenerator = reportGenerator;
+    }
+
+    public PerfStatistics getStats() {
+        return new PerfStatistics(results);
+    }
 }
