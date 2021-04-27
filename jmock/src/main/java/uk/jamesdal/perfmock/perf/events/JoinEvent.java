@@ -3,8 +3,8 @@ package uk.jamesdal.perfmock.perf.events;
 import uk.jamesdal.perfmock.perf.SimEvent;
 
 public class JoinEvent extends SimEvent {
-    public JoinEvent(double simTime) {
-        super(simTime);
+    public JoinEvent(double simTime, double realTime) {
+        super(simTime, realTime);
     }
 
     @Override

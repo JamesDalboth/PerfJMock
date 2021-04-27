@@ -6,8 +6,8 @@ public class ModelEvent extends SimEvent {
 
     private final double sampledModelTime;
 
-    public ModelEvent(double simTime, double sampledModelTime) {
-        super(simTime);
+    public ModelEvent(double simTime, double realTime, double sampledModelTime) {
+        super(simTime, realTime);
         this.sampledModelTime = sampledModelTime;
     }
 

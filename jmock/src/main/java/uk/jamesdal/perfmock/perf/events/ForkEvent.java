@@ -5,8 +5,8 @@ import uk.jamesdal.perfmock.perf.SimEvent;
 public class ForkEvent extends SimEvent {
     private final long parent;
 
-    public ForkEvent(double simTime, long child) {
-        super(simTime, child);
+    public ForkEvent(double simTime, double realTime, long child) {
+        super(simTime, realTime, child);
         this.parent = Thread.currentThread().getId();
     }
 

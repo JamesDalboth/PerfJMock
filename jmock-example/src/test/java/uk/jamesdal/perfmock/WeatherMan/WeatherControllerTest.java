@@ -13,6 +13,7 @@ import org.junit.Rule;
 import uk.jamesdal.perfmock.perf.models.ModelIterator;
 import uk.jamesdal.perfmock.perf.models.Normal;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
+import uk.jamesdal.perfmock.perf.postproc.reportgenerators.HtmlReportGenerator;
 
 import java.time.LocalDate;
 import java.util.Random;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class WeatherControllerTest {
 
     @Rule
-    public PerfRule perfRule = new PerfRule(new ConsoleReportGenerator());
+    public PerfRule perfRule = new PerfRule(new HtmlReportGenerator());
 
     @Rule
     public PerfMockery ctx = new PerfMockery(perfRule);

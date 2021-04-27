@@ -6,8 +6,8 @@ public class PauseEvent extends SimEvent {
 
     private final long runTime;
 
-    public PauseEvent(double simTime, long runTime) {
-        super(simTime);
+    public PauseEvent(double simTime, long runTime, double realTime) {
+        super(simTime, realTime);
         this.runTime = runTime;
     }
 

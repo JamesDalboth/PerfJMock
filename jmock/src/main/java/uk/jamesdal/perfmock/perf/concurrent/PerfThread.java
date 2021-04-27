@@ -13,7 +13,7 @@ public class PerfThread extends Thread {
 
     @Override
     public synchronized void start() {
-        simulation.setUpNewThreads(Thread.currentThread().getId(), this.getId());
+        simulation.setUpNewThreads(this.getId());
         super.start();
     }
 

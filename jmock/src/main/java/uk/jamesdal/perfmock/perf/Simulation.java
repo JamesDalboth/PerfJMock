@@ -10,7 +10,7 @@ import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerato
 import java.util.*;
 
 public class Simulation {
-    private final HashMap<Long, PerfCallable> callableHashMap = new HashMap<>();
+    private final HashMap<Long, PerfCallable<?>> callableHashMap = new HashMap<>();
     private final List<IterResult> results = new ArrayList<>();
 
     private List<SimEvent> history = new ArrayList<>();
@@ -23,7 +23,7 @@ public class Simulation {
 
     // Save Simulation results
     public void save() {
-        results.add(new IterResult(0.0, getSimTime()));
+        results.add(new IterResult(getRealTime(), getSimTime()));
     }
 
     // Add play event for current thread
@@ -34,7 +34,7 @@ public class Simulation {
 
         if (Objects.isNull(last) || last.getType() == EventTypes.PAUSE) {
             long curTime = System.currentTimeMillis();
-            PlayEvent playEvent = new PlayEvent(getSimTime(), curTime);
+            PlayEvent playEvent = new PlayEvent(getSimTime(), curTime ,getRealTime());
             addEvent(playEvent);
         }
     }
@@ -50,42 +50,42 @@ public class Simulation {
         // Find matching play event
         SimEvent last = getLastPlayPauseEvent(history, id, history.size() - 1);
 
-        if (last.getType() != EventTypes.PLAY) {
+        if (last == null || last.getType() != EventTypes.PLAY) {
             System.out.println("Could not find matching play event");
             return;
         }
         PlayEvent playEvent = (PlayEvent) last;
 
 
-        long diff = curTime - playEvent.getRunTime();
+        double diff = curTime - playEvent.getRunTime();
 
-        addEvent(new PauseEvent(getSimTime(id) + diff, curTime), id);
+        addEvent(new PauseEvent(getSimTime(id) + diff, curTime, getRealTime(id) + diff), id);
     }
 
-    public void setUpNewThreads(long parent, long child) {
-        addEvent(new ForkEvent(getSimTime(), child), child);
+    public void setUpNewThreads(long child) {
+        addEvent(new ForkEvent(getSimTime(), getRealTime(), child), child);
     }
 
     public void createJoinEvent(long child) {
         double parentSimTime = getSimTime();
         double childSimTime = getSimTime(child);
 
-        JoinEvent joinEvent = new JoinEvent(Math.max(parentSimTime, childSimTime));
+        JoinEvent joinEvent = new JoinEvent(Math.max(parentSimTime, childSimTime), getRealTime());
         addEvent(joinEvent);
     }
 
-    public void createTaskJoinEvent(long id, PerfCallable task) {
+    public void createTaskJoinEvent(long id, PerfCallable<?> task) {
         double parentSimTime = getSimTime();
         TaskFinishEvent event = callableBackwardsSearch(history, task, id);
         double childSimTime = event.getSimTime();
 
-        TaskJoinEvent taskJoinEvent = new TaskJoinEvent(Math.max(parentSimTime, childSimTime));
+        TaskJoinEvent taskJoinEvent = new TaskJoinEvent(Math.max(parentSimTime, childSimTime), getRealTime());
         addEvent(taskJoinEvent);
 
     }
 
     public void add(double time) {
-        addEvent(new ModelEvent(getSimTime() + time, time));
+        addEvent(new ModelEvent(getSimTime() + time, getRealTime(), time));
     }
 
     public double getSimTime() {
@@ -99,6 +99,18 @@ public class Simulation {
         return backwardsSearch(history, null, id).getSimTime();
     }
 
+    public double getRealTime() {
+        return getRealTime(Thread.currentThread().getId());
+    }
+
+    public double getRealTime(long id) {
+        if (history.size() == 0) {
+            return 0.0;
+        }
+
+        return backwardsSearch(history, null, id).getRealTime();
+    }
+
     public synchronized void addEvent(SimEvent event) {
         addEvent(event, Thread.currentThread().getId());
     }
@@ -106,6 +118,27 @@ public class Simulation {
     public synchronized void addEvent(SimEvent event, long id) {
         event.setThreadId(id);
         history.add(event);
+    }
+
+    public PerfCallable<?> getLastPerfCallable(long id) {
+        return callableHashMap.get(id);
+    }
+
+    public void setCallable(PerfCallable<?> callable, long id) {
+        callableHashMap.put(id, callable);
+    }
+
+    public void genReport() {
+        reportGenerator.setStats(getStats());
+        reportGenerator.generateReport();
+    }
+
+    public void setReportGenerator(ReportGenerator reportGenerator) {
+        this.reportGenerator = reportGenerator;
+    }
+
+    public PerfStatistics getStats() {
+        return new PerfStatistics(results);
     }
 
     private SimEvent getLastPlayPauseEvent(List<SimEvent> history, long threadId, int searchIndex) {
@@ -161,7 +194,7 @@ public class Simulation {
     }
 
     // Search a History for task finish event which matches callable
-    private TaskFinishEvent callableBackwardsSearch(List<SimEvent> history, PerfCallable task, long threadId) {
+    private TaskFinishEvent callableBackwardsSearch(List<SimEvent> history, PerfCallable<?> task, long threadId) {
         for (int i = history.size() - 1; i > 0; i--) {
             SimEvent event = history.get(i);
             if (event.getType() == EventTypes.TASK_FINISH) {
@@ -175,24 +208,5 @@ public class Simulation {
         return null;
     }
 
-    public PerfCallable getLastPerfCallable(long id) {
-        return callableHashMap.get(id);
-    }
 
-    public void setCallable(PerfCallable callable, long id) {
-        callableHashMap.put(id, callable);
-    }
-
-    public void genReport() {
-        reportGenerator.setStats(getStats());
-        reportGenerator.generateReport();
-    }
-
-    public void setReportGenerator(ReportGenerator reportGenerator) {
-        this.reportGenerator = reportGenerator;
-    }
-
-    public PerfStatistics getStats() {
-        return new PerfStatistics(results);
-    }
 }

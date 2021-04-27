@@ -20,7 +20,7 @@ public class PerfCallable<V> implements Callable<V> {
         simulation.play();
         V res = task.call();
         simulation.pause();
-        simulation.addEvent(new TaskFinishEvent(simulation.getSimTime(), this));
+        simulation.addEvent(new TaskFinishEvent(simulation.getSimTime(), simulation.getRealTime(), this));
         return res;
     }
 }
