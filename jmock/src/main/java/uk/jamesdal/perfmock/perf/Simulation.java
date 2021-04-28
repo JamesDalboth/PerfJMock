@@ -8,11 +8,23 @@ import uk.jamesdal.perfmock.perf.postproc.ReportGenerator;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
 import java.util.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Simulation {
     private final HashMap<Long, PerfCallable<?>> callableHashMap = new HashMap<>();
     private final List<IterResult> results = new ArrayList<>();
+    private final List<PerfCallable<?>> runningCallables = new ArrayList<>();
+    private final List<PerfCallable<?>> waitingCallables = new ArrayList<>();
+    private final ReentrantLock alteringTasksLock = new ReentrantLock();
+    private final ReentrantLock allocatingTasksLock = new ReentrantLock();
+    private final ReentrantLock checkingLock = new ReentrantLock();
+    private final Semaphore runningCallablesSemaphore = new Semaphore(0);
+    private final Semaphore executingThreadSemaphore = new Semaphore(1);
 
+    private int checkedThreads = 0;
+    private int requiredCheckedThreads = 0;
+    private Thread currentlyCalculating = null;
     private List<SimEvent> history = new ArrayList<>();
     private ReportGenerator reportGenerator = new ConsoleReportGenerator();
 
@@ -209,4 +221,111 @@ public class Simulation {
     }
 
 
+    public void addRunningCallable(PerfCallable<?> callable) {
+        alteringTasksLock.lock();
+
+        allocatingTasksLock.lock();
+        runningCallables.add(callable);
+        allocatingTasksLock.unlock();
+
+        alteringTasksLock.unlock();
+    }
+
+    public void finishCallable(PerfCallable<?> callable) {
+        alteringTasksLock.lock();
+
+        runningCallables.remove(callable);
+        waitingCallables.add(callable);
+
+        if (runningCallables.isEmpty()) {
+            System.out.println(Thread.currentThread() + " discovered no runnables");
+            requiredCheckedThreads = waitingCallables.size();
+            checkedThreads = 0;
+            runningCallablesSemaphore.release();
+        }
+        System.out.println(Thread.currentThread() + " finished finishCallble()");
+        alteringTasksLock.unlock();
+    }
+
+    public boolean checkIfCanComplete(PerfCallable<?> callable) {
+        System.out.println(Thread.currentThread() + " started checking");
+        checkingLock.lock();
+
+        PerfCallable<?> earliest = waitingCallables.get(0);
+
+        // If callable is completed
+        if (callable == earliest && currentlyCalculating == null) {
+            currentlyCalculating = Thread.currentThread();
+            System.out.println(Thread.currentThread() + " me");
+
+            try {
+                executingThreadSemaphore.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            waitingCallables.remove(callable);
+
+            finishChecking();
+            return true;
+        }
+
+        // If callable not completed
+        finishChecking();
+        return false;
+    }
+
+    private synchronized void finishChecking() {
+        checkedThreads++;
+        System.out.println(Thread.currentThread() +  " finished checking " + checkedThreads + ":" + requiredCheckedThreads);
+        if (checkedThreads == requiredCheckedThreads) {
+            System.out.println(Thread.currentThread() + " releasing");
+            synchronized(this) {
+                this.notifyAll();
+            }
+            checkingLock.unlock();
+            return;
+        }
+
+        checkingLock.unlock();
+        System.out.println(Thread.currentThread() + " waiting");
+        synchronized(this) {
+            try {
+                this.wait();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return;
+    }
+
+    public Thread getCurrentlyCalculatingThread() {
+        return currentlyCalculating;
+    }
+
+    public void waitUntilNoRunningCallables() {
+        try {
+            runningCallablesSemaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        runningCallablesSemaphore.release();
+    }
+
+    public void waitUntilCalculatingThreadFinished() {
+        try {
+            executingThreadSemaphore.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        executingThreadSemaphore.release();
+    }
+
+    public void finishedCalculatingThread() {
+        currentlyCalculating = null;
+        executingThreadSemaphore.release();
+    }
 }
