@@ -19,9 +19,8 @@ public class PerfCallable<V> implements Callable<V> {
     public V call() throws Exception {
         simulation.play();
         V res = task.call();
-        //Thread.sleep(5);
         simulation.pause();
-        simulation.addEvent(new TaskFinishEvent(simulation.getSimTime(), this));
+        simulation.addEvent(new TaskFinishEvent(simulation.getSimTime(), simulation.getRealTime(), this));
         return res;
     }
 }

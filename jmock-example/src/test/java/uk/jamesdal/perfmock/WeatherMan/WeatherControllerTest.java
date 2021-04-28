@@ -5,12 +5,15 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
+import uk.jamesdal.perfmock.lib.action.ReturnIteratorAction;
 import uk.jamesdal.perfmock.perf.PerfRule;
 import uk.jamesdal.perfmock.perf.PerfTest;
 import org.junit.Test;
 import org.junit.Rule;
+import uk.jamesdal.perfmock.perf.models.ModelIterator;
 import uk.jamesdal.perfmock.perf.models.Normal;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
+import uk.jamesdal.perfmock.perf.postproc.reportgenerators.HtmlReportGenerator;
 
 import java.time.LocalDate;
 import java.util.Random;
@@ -23,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class WeatherControllerTest {
 
     @Rule
-    public PerfRule perfRule = new PerfRule(new ConsoleReportGenerator());
+    public PerfRule perfRule = new PerfRule(new HtmlReportGenerator());
 
     @Rule
     public PerfMockery ctx = new PerfMockery(perfRule);
@@ -33,7 +36,7 @@ public class WeatherControllerTest {
 
     private final WeatherInformation info = ctx.mock(WeatherInformation.class);
 
-    private LocalDate date = LocalDate.parse("2000-02-12");
+    private LocalDate date = LocalDate.parse("2050-02-12");
     private LocalDate date2 = LocalDate.parse("2050-02-13");
 
     @Test
@@ -43,7 +46,7 @@ public class WeatherControllerTest {
 
         ctx.checking(new Expectations() {{
             allowing(weatherDatabase); will(returnValue(null)); taking(seconds(new Uniform(5.0, 10.0)));
-            oneOf(weatherApi).getInfo(date); will(returnValue(info)); taking(seconds(new Normal(5.0, 1.0)));
+            allowing(weatherApi); will(returnValue(info)); taking(seconds(new Normal(5.0, 2.0)));
         }});
 
         ctlr.predict(date);
@@ -53,17 +56,14 @@ public class WeatherControllerTest {
     public void grabsFuturePredictionRepeat() {
         WeatherController ctlr = new WeatherController(weatherApi, weatherDatabase);
 
-        ctx.repeat(1000, 0, () -> {
+        ctx.repeat(2000, 10, () -> {
             ctx.checking(new Expectations() {{
-                allowing(weatherDatabase).getInfo(date); will(returnValue(null)); taking(seconds(5));
-                allowing(weatherApi).getInfo(date); will(returnValue(info)); taking(seconds(new Normal(5.0, 1.0)));
-
+                allowing(weatherDatabase); will(returnValue(null)); taking(seconds(new Uniform(5.0, 10.0)));
+                allowing(weatherApi); will(returnValue(info)); taking(seconds(new Normal(5.0, 2.0)));
             }});
 
             ctlr.predict(date);
         });
-
-        assertThat(ctx.getPerfStats().meanMeasuredTime() , lessThan(15000.0));
     }
 
     private Matcher<LocalDate> pastDate() {
@@ -88,9 +88,7 @@ public class WeatherControllerTest {
             }
 
             @Override
-            public void describeTo(Description description) {
-
-            }
+            public void describeTo(Description description) {}
         };
     }
 
