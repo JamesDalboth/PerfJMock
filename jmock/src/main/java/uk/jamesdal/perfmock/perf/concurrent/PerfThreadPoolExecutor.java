@@ -14,9 +14,21 @@ public class PerfThreadPoolExecutor extends ThreadPoolExecutor {
                                       new LinkedBlockingQueue<Runnable>(), threadFactory);
     }
 
+    public static ExecutorService newFixedThreadPoolRoundRobin(int nThreads, PerfThreadFactory threadFactory) {
+        return new PerfThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS,
+                new PerfLinkedBlockingQueue<>(nThreads), threadFactory);
+    }
+
     public PerfThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, PerfThreadFactory threadFactory) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
         this.simulation = threadFactory.getSimulation();
+    }
+
+
+
+    @Override
+    public <T> Future<T> submit(Callable<T> task) {
+        return super.submit(task);
     }
 
     @Override

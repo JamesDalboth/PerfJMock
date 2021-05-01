@@ -23,7 +23,9 @@ class FriendService {
 
         List<Future<ProfilePic>> futureTasks = new ArrayList<>();
 
-        ExecutorService executorService = PerfThreadPoolExecutor.newFixedThreadPool(3, threadFactory);
+        ExecutorService executorService = PerfThreadPoolExecutor.newFixedThreadPoolRoundRobin(
+                3, threadFactory
+        );
 
         for (Integer id : friendIds) {
             Future<ProfilePic> future = executorService.submit(getProfilePic(id));
