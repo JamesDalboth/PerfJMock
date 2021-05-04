@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class WeatherControllerTest {
 
     @Rule
-    public PerfRule perfRule = new PerfRule(new HtmlReportGenerator());
+    public PerfRule perfRule = new PerfRule(new ConsoleReportGenerator());
 
     @Rule
     public PerfMockery ctx = new PerfMockery(perfRule);
@@ -40,7 +40,7 @@ public class WeatherControllerTest {
     private LocalDate date2 = LocalDate.parse("2050-02-13");
 
     @Test
-    @PerfTest(iterations = 2000, warmups = 10)
+    @PerfTest(iterations = 10, warmups = 10)
     public void grabsFuturePrediction() {
         WeatherController ctlr = new WeatherController(weatherApi, weatherDatabase);
 
