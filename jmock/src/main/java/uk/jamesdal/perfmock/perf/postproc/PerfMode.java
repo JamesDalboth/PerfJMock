@@ -1,2 +1,7 @@
-package uk.jamesdal.perfmock.perf.postproc;public class PerfMode {
+package uk.jamesdal.perfmock.perf.postproc;
+
+public enum PerfMode {
+    MEAN,
+    MAX,
+    MIN
 }
