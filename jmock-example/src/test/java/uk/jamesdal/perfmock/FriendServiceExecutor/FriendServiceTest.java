@@ -30,7 +30,7 @@ public class FriendServiceTest {
     private final List<Integer> ids = Collections.nCopies(21, 1);
 
     @Test
-    @PerfTest(iterations = 50, warmups = 0)
+    @PerfTest(iterations = 1000, warmups = 0)
     public void simpleTest1() {
         FriendService service = new FriendService(api, new PerfThreadFactory(perfRule.getSimulation()));
 

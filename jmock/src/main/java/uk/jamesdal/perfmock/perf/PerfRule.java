@@ -2,13 +2,14 @@ package uk.jamesdal.perfmock.perf;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
+import org.junit.runners.model.Annotatable;
 import org.junit.runners.model.Statement;
-import uk.jamesdal.perfmock.perf.postproc.IterResult;
-import uk.jamesdal.perfmock.perf.postproc.PerfStatistics;
-import uk.jamesdal.perfmock.perf.postproc.ReportGenerator;
+import uk.jamesdal.perfmock.perf.postproc.*;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,6 +27,19 @@ public class PerfRule implements TestRule {
     @Override
     public Statement apply(Statement base, Description description) {
         PerfTest perfTestAnnotation = description.getAnnotation(PerfTest.class);
+
+        PerfRequirement[] requirements;
+        PerfRequirements perfRequirements = description.getAnnotation(PerfRequirements.class);
+        if (perfRequirements != null) {
+            requirements = perfRequirements.value();
+        } else {
+            PerfRequirement perfRequirement = description.getAnnotation(PerfRequirement.class);
+            if (perfRequirement != null) {
+                requirements = new PerfRequirement[] {perfRequirement};
+            } else {
+                requirements = new PerfRequirement[0];
+            }
+        }
 
         Statement statement = base;
         if (Objects.nonNull(perfTestAnnotation)) {
@@ -54,12 +68,15 @@ public class PerfRule implements TestRule {
 
                     }
 
+                    RequirementChecker.doesStatsMatchRequirements(simulation.getStats(), requirements);
+
                     simulation.genReport();
                 }
             };
 
             statement = perfStatement;
         }
+
         return statement;
     }
 

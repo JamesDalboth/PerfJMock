@@ -55,8 +55,6 @@ public class Simulation {
             return;
         }
         PlayEvent playEvent = (PlayEvent) last;
-
-
         double diff = curTime - playEvent.getRunTime();
 
         addEvent(new PauseEvent(getSimTime(id) + diff, curTime, getRealTime(id) + diff), id);
