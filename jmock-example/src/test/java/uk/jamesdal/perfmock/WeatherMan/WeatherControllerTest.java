@@ -5,15 +5,12 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
-import uk.jamesdal.perfmock.lib.action.ReturnIteratorAction;
 import uk.jamesdal.perfmock.perf.PerfRule;
-import uk.jamesdal.perfmock.perf.PerfTest;
+import uk.jamesdal.perfmock.perf.Annotations.PerfTest;
 import org.junit.Test;
 import org.junit.Rule;
-import uk.jamesdal.perfmock.perf.models.ModelIterator;
 import uk.jamesdal.perfmock.perf.models.Normal;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
-import uk.jamesdal.perfmock.perf.postproc.reportgenerators.HtmlReportGenerator;
 
 import java.time.LocalDate;
 import java.util.Random;

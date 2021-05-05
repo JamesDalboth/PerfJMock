@@ -1,6 +1,6 @@
 package uk.jamesdal.perfmock.perf.postproc;
 
-import uk.jamesdal.perfmock.perf.PerfRequirement;
+import uk.jamesdal.perfmock.perf.Annotations.PerfRequirement;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,5 +1,6 @@
 package uk.jamesdal.perfmock.perf.concurrent;
 
+import uk.jamesdal.perfmock.perf.Exceptions.ShutdownException;
 import uk.jamesdal.perfmock.perf.Simulation;
 
 import java.util.ArrayList;

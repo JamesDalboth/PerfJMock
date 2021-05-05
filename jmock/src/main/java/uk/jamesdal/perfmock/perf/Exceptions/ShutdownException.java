@@ -1,4 +1,4 @@
-package uk.jamesdal.perfmock.perf.concurrent;
+package uk.jamesdal.perfmock.perf.Exceptions;
 
 public class ShutdownException extends RuntimeException {
     @Override

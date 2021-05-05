@@ -1,9 +1,10 @@
 package uk.jamesdal.perfmock.perf.postproc;
 
-import uk.jamesdal.perfmock.perf.PerfRequirement;
+import uk.jamesdal.perfmock.perf.Exceptions.RequirementFailureException;
+import uk.jamesdal.perfmock.perf.Annotations.PerfRequirement;
 
 public class RequirementChecker {
-    private static void doesStatsMatchRequirement(PerfStatistics stats, PerfRequirement requirement) throws RequirementFailure {
+    private static void doesStatsMatchRequirement(PerfStatistics stats, PerfRequirement requirement) throws RequirementFailureException {
         double value1;
         switch (requirement.mode()) {
             case MEAN:
@@ -40,11 +41,11 @@ public class RequirementChecker {
 
         if (!success) {
             System.err.println("Failure to meet requirement " + requirement + " actual value " + value1);
-            throw new RequirementFailure();
+            throw new RequirementFailureException();
         }
     }
 
-    public static void doesStatsMatchRequirements(PerfStatistics stats, PerfRequirement[] requirements) throws RequirementFailure {
+    public static void doesStatsMatchRequirements(PerfStatistics stats, PerfRequirement[] requirements) throws RequirementFailureException {
         for (PerfRequirement requirement : requirements) {
             doesStatsMatchRequirement(stats, requirement);
         }

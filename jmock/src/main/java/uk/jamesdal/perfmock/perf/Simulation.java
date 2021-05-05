@@ -1,5 +1,6 @@
 package uk.jamesdal.perfmock.perf;
 
+import uk.jamesdal.perfmock.perf.Exceptions.EventMissingException;
 import uk.jamesdal.perfmock.perf.events.EventTypes;
 import uk.jamesdal.perfmock.perf.events.ForkEvent;
 import uk.jamesdal.perfmock.perf.events.JoinEvent;

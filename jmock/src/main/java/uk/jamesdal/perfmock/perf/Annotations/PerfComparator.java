@@ -1,4 +1,4 @@
-package uk.jamesdal.perfmock.perf;
+package uk.jamesdal.perfmock.perf.Annotations;
 
 public enum PerfComparator {
     LESS_THAN,

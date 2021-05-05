@@ -5,13 +5,13 @@ import org.junit.Test;
 import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
 import uk.jamesdal.perfmock.lib.concurrent.Synchroniser;
-import uk.jamesdal.perfmock.perf.PerfComparator;
-import uk.jamesdal.perfmock.perf.PerfRequirement;
+import uk.jamesdal.perfmock.perf.Annotations.PerfComparator;
+import uk.jamesdal.perfmock.perf.Annotations.PerfRequirement;
 import uk.jamesdal.perfmock.perf.PerfRule;
-import uk.jamesdal.perfmock.perf.PerfTest;
+import uk.jamesdal.perfmock.perf.Annotations.PerfTest;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 import uk.jamesdal.perfmock.perf.models.Normal;
-import uk.jamesdal.perfmock.perf.postproc.PerfMode;
+import uk.jamesdal.perfmock.perf.Annotations.PerfMode;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
 import java.util.Collections;

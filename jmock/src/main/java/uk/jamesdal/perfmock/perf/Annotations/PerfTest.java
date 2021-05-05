@@ -1,4 +1,4 @@
-package uk.jamesdal.perfmock.perf;
+package uk.jamesdal.perfmock.perf.Annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

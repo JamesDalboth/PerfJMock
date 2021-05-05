@@ -1,4 +1,4 @@
-package uk.jamesdal.perfmock.perf;
+package uk.jamesdal.perfmock.perf.Exceptions;
 
 public class EventMissingException extends RuntimeException {
     @Override
