@@ -1,6 +1,6 @@
 package uk.jamesdal.perfmock.perf;
 
-import uk.jamesdal.perfmock.perf.Exceptions.EventMissingException;
+import uk.jamesdal.perfmock.perf.exceptions.EventMissingException;
 import uk.jamesdal.perfmock.perf.events.EventTypes;
 import uk.jamesdal.perfmock.perf.events.ForkEvent;
 import uk.jamesdal.perfmock.perf.events.JoinEvent;
@@ -14,6 +14,7 @@ import uk.jamesdal.perfmock.perf.postproc.PerfStatistics;
 import uk.jamesdal.perfmock.perf.postproc.ReportGenerator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -25,6 +26,7 @@ public class Simulation {
     private final ReportGenerator reportGenerator;
 
     private List<Long> threadIds;
+    private HashMap<Long, Long> virtualThreadMap;
     private List<SimEvent> history;
 
     public Simulation(ReportGenerator reportGenerator) {
@@ -34,12 +36,14 @@ public class Simulation {
 
         this.threadIds = new ArrayList<>();
         this.history = new ArrayList<>();
+        this.virtualThreadMap = new HashMap<>();
     }
 
     // Reset timeline to beginning
     public void reset() {
         history = new ArrayList<>();
         threadIds = new ArrayList<>();
+        virtualThreadMap = new HashMap<>();
     }
 
     // Save Simulation results
@@ -102,6 +106,10 @@ public class Simulation {
         }
 
         return quickestThread;
+    }
+
+    public void usingFakeThread(long virtualThreadId) {
+        virtualThreadMap.put(Thread.currentThread().getId(), virtualThreadId);
     }
 
     // Event Methods
@@ -286,7 +294,7 @@ public class Simulation {
     private Long getThreadId() {
         long id = Thread.currentThread().getId();
         if (!threadIds.contains(id) && id != 1) {
-            id = Long.parseLong(Thread.currentThread().getName());
+            id = virtualThreadMap.get(id);
         }
         return id;
     }

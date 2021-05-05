@@ -1,4 +1,4 @@
-package uk.jamesdal.perfmock.perf.Annotations;
+package uk.jamesdal.perfmock.perf.annotations;
 
 import uk.jamesdal.perfmock.perf.postproc.PerfRequirements;
 

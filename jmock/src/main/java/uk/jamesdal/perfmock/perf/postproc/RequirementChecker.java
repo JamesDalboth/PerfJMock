@@ -1,7 +1,7 @@
 package uk.jamesdal.perfmock.perf.postproc;
 
-import uk.jamesdal.perfmock.perf.Exceptions.RequirementFailureException;
-import uk.jamesdal.perfmock.perf.Annotations.PerfRequirement;
+import uk.jamesdal.perfmock.perf.exceptions.RequirementFailureException;
+import uk.jamesdal.perfmock.perf.annotations.PerfRequirement;
 
 public class RequirementChecker {
     private static void doesStatsMatchRequirement(PerfStatistics stats, PerfRequirement requirement) throws RequirementFailureException {
