@@ -1,5 +1,6 @@
 package uk.jamesdal.perfmock.FriendServiceExecutor;
 
+import uk.jamesdal.perfmock.perf.concurrent.PerfExecutorService;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadPoolExecutor;
 
@@ -23,8 +24,8 @@ class FriendService {
 
         List<Future<ProfilePic>> futureTasks = new ArrayList<>();
 
-        ExecutorService executorService = PerfThreadPoolExecutor.newFixedThreadPoolRoundRobin(
-                3, threadFactory
+        ExecutorService executorService = PerfExecutorService.fixedThreadPool(
+                4, threadFactory
         );
 
         for (Integer id : friendIds) {
@@ -40,6 +41,13 @@ class FriendService {
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
+        }
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(100, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         return results;

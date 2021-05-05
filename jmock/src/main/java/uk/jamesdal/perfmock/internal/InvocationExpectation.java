@@ -177,7 +177,7 @@ public class InvocationExpectation implements Expectation {
         invocation.checkReturnTypeCompatibility(result);
 
         if (!Objects.isNull(simulation)) {
-            simulation.add(perfModel.sample());
+            simulation.addModel(perfModel.sample());
             simulation.play();
         }
         return result;

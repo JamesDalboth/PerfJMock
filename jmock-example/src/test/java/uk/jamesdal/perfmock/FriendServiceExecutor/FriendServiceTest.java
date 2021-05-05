@@ -13,6 +13,8 @@ import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerato
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 
 public class FriendServiceTest {
@@ -32,16 +34,21 @@ public class FriendServiceTest {
     @Test
     @PerfTest(iterations = 1000, warmups = 0)
     public void simpleTest1() {
-        FriendService service = new FriendService(api, new PerfThreadFactory(perfRule.getSimulation()));
+        FriendService service = new FriendService(
+                api, new PerfThreadFactory(perfRule.getSimulation())
+        );
 
         ctx.checking(new Expectations() {{
             oneOf(api).getFriends(); will(returnValue(ids)); taking(seconds(0));
-            allowing(api).getProfilePic(with(any(Integer.class))); will(returnValue(new ProfilePic())); taking(seconds(5));
+            allowing(api).getProfilePic(with(any(Integer.class)));
+                will(returnValue(new ProfilePic())); taking(seconds(5));
         }});
 
         List<ProfilePic> res = service.getFriendsProfilePictures();
         assertEquals(res.size(), ids.size());
-        //assertThat(ctx.getPerfStats().meanMeasuredTime() , lessThan(37000.0));
+        assertThat(
+                ctx.getPerfStats().meanMeasuredTime() , lessThan(37000.0)
+        );
     }
 
 }

@@ -12,7 +12,6 @@ public class PerfCallable<V> implements Callable<V> {
     public PerfCallable(Callable<V> task, Simulation simulation) {
         this.task = task;
         this.simulation = simulation;
-        simulation.setCallable(this, Thread.currentThread().getId());
     }
 
     @Override
@@ -20,7 +19,17 @@ public class PerfCallable<V> implements Callable<V> {
         simulation.play();
         V res = task.call();
         simulation.pause();
-        simulation.addEvent(new TaskFinishEvent(simulation.getSimTime(), simulation.getRealTime(), this));
+        simulation.addEvent(
+                new TaskFinishEvent(
+                        simulation.getSimTime(),
+                        simulation.getRealTime(),
+                        this
+                )
+        );
         return res;
+    }
+
+    public Callable<V> getTask() {
+        return task;
     }
 }

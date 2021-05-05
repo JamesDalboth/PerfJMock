@@ -2,26 +2,23 @@ package uk.jamesdal.perfmock.perf;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
-import org.junit.runners.model.Annotatable;
 import org.junit.runners.model.Statement;
-import uk.jamesdal.perfmock.perf.postproc.*;
+import uk.jamesdal.perfmock.perf.postproc.PerfRequirements;
+import uk.jamesdal.perfmock.perf.postproc.ReportGenerator;
+import uk.jamesdal.perfmock.perf.postproc.RequirementChecker;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 public class PerfRule implements TestRule {
-    private final Simulation simulation = new Simulation();
+    private final Simulation simulation;
 
     public PerfRule() {
         this(new ConsoleReportGenerator());
     }
 
     public PerfRule(ReportGenerator reportGenerator) {
-        simulation.setReportGenerator(reportGenerator);
+        this.simulation = new Simulation(reportGenerator);
     }
 
     @Override
@@ -29,11 +26,13 @@ public class PerfRule implements TestRule {
         PerfTest perfTestAnnotation = description.getAnnotation(PerfTest.class);
 
         PerfRequirement[] requirements;
-        PerfRequirements perfRequirements = description.getAnnotation(PerfRequirements.class);
+        PerfRequirements perfRequirements =
+                description.getAnnotation(PerfRequirements.class);
         if (perfRequirements != null) {
             requirements = perfRequirements.value();
         } else {
-            PerfRequirement perfRequirement = description.getAnnotation(PerfRequirement.class);
+            PerfRequirement perfRequirement =
+                    description.getAnnotation(PerfRequirement.class);
             if (perfRequirement != null) {
                 requirements = new PerfRequirement[] {perfRequirement};
             } else {
@@ -43,7 +42,7 @@ public class PerfRule implements TestRule {
 
         Statement statement = base;
         if (Objects.nonNull(perfTestAnnotation)) {
-            Statement perfStatement = new Statement() {
+            statement = new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
                     long iterations = perfTestAnnotation.iterations();
@@ -68,13 +67,13 @@ public class PerfRule implements TestRule {
 
                     }
 
-                    RequirementChecker.doesStatsMatchRequirements(simulation.getStats(), requirements);
+                    RequirementChecker.doesStatsMatchRequirements(
+                            simulation.getStats(), requirements
+                    );
 
                     simulation.genReport();
                 }
             };
-
-            statement = perfStatement;
         }
 
         return statement;

@@ -10,6 +10,7 @@ import uk.jamesdal.perfmock.perf.PerfRequirement;
 import uk.jamesdal.perfmock.perf.PerfRule;
 import uk.jamesdal.perfmock.perf.PerfTest;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
+import uk.jamesdal.perfmock.perf.models.Normal;
 import uk.jamesdal.perfmock.perf.postproc.PerfMode;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
@@ -40,7 +41,7 @@ public class FriendServiceTest {
         FriendService service = new FriendService(api, new PerfThreadFactory(perfRule.getSimulation()));
 
         ctx.checking(new Expectations() {{
-            oneOf(api).getFriends(); will(returnValue(ids)); taking(seconds(2));
+            oneOf(api).getFriends(); will(returnValue(ids)); taking(new Normal(5.0, 10.0));
             allowing(api).getProfilePic(with(any(Integer.class))); will(returnValue(new ProfilePic())); taking(seconds(5));
         }});
 

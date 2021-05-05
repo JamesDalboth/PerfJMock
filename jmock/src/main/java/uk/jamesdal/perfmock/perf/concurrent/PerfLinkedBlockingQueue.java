@@ -16,15 +16,15 @@ public class PerfLinkedBlockingQueue<E> implements BlockingQueue<E> {
     private Integer currentQueue;
 
     public PerfLinkedBlockingQueue(int threadPoolSize) {
-        queueMap = new HashMap<>();
-        threadMap = new HashMap<>();
+        this.queueMap = new HashMap<>();
+        this.threadMap = new HashMap<>();
 
         for (int i = 0; i < threadPoolSize; i++) {
-            queueMap.put(i, new LinkedBlockingQueue<>());
+            this.queueMap.put(i, new LinkedBlockingQueue<>());
         }
 
-        currentQueue = 0;
-        threadAllocationLock = new ReentrantLock();
+        this.currentQueue = 0;
+        this.threadAllocationLock = new ReentrantLock();
     }
 
     private LinkedBlockingQueue<E> getThreadQueue() {
@@ -42,7 +42,7 @@ public class PerfLinkedBlockingQueue<E> implements BlockingQueue<E> {
     @Override
     public boolean offer(E e) {
         LinkedBlockingQueue<E> queue = queueMap.get(currentQueue);
-        currentQueue = (currentQueue + 1) % 3;
+        currentQueue = (currentQueue + 1) % queueMap.size();
         return queue.offer(e);
     }
 
