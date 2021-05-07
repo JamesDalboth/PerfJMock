@@ -1,7 +1,11 @@
 package uk.jamesdal.perfmock.perf.postproc;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.commons.math3.stat.inference.TestUtils.kolmogorovSmirnovTest;
 
 public class PerfStatistics {
 
@@ -116,5 +120,17 @@ public class PerfStatistics {
 
     public double totalMeasuredTime() {
         return total(getMeasuredTimes());
+    }
+
+    public boolean matchesDistribution(NormalDistribution normalDistribution,
+                                       double alpha) {
+        List<Double> times = getMeasuredTimes();
+        double[] data = new double[times.size()];
+        for (int i = 0; i < times.size(); i++) {
+            data[i] = times.get(i);
+        }
+        double val = kolmogorovSmirnovTest(normalDistribution, data);
+        System.out.println(val);
+        return !kolmogorovSmirnovTest(normalDistribution, data, alpha);
     }
 }

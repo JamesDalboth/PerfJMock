@@ -6,7 +6,7 @@ import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
 import uk.jamesdal.perfmock.lib.concurrent.Synchroniser;
 import uk.jamesdal.perfmock.perf.PerfRule;
-import uk.jamesdal.perfmock.perf.Annotations.PerfTest;
+import uk.jamesdal.perfmock.perf.annotations.PerfTest;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 

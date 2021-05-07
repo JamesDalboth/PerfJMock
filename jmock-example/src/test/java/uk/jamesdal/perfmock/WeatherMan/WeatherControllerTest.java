@@ -1,12 +1,13 @@
 package uk.jamesdal.perfmock.WeatherMan;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
 import uk.jamesdal.perfmock.perf.PerfRule;
-import uk.jamesdal.perfmock.perf.Annotations.PerfTest;
+import uk.jamesdal.perfmock.perf.annotations.PerfTest;
 import org.junit.Test;
 import org.junit.Rule;
 import uk.jamesdal.perfmock.perf.models.Normal;
@@ -61,6 +62,10 @@ public class WeatherControllerTest {
 
             ctlr.predict(date);
         });
+
+        assertTrue(ctx.getPerfStats().matchesDistribution(
+                new NormalDistribution(12500, 2500), 0.05)
+        );
     }
 
     private Matcher<LocalDate> pastDate() {

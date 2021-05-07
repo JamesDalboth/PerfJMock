@@ -6,15 +6,16 @@ import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
 import uk.jamesdal.perfmock.lib.concurrent.Synchroniser;
 import uk.jamesdal.perfmock.perf.PerfRule;
-import uk.jamesdal.perfmock.perf.Annotations.PerfTest;
+import uk.jamesdal.perfmock.perf.annotations.PerfComparator;
+import uk.jamesdal.perfmock.perf.annotations.PerfMode;
+import uk.jamesdal.perfmock.perf.annotations.PerfRequirement;
+import uk.jamesdal.perfmock.perf.annotations.PerfTest;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 
 public class FriendServiceTest {
@@ -33,6 +34,7 @@ public class FriendServiceTest {
 
     @Test
     @PerfTest(iterations = 1000, warmups = 0)
+    @PerfRequirement(mode = PerfMode.MEAN, comparator = PerfComparator.LESS_THAN, value = 37000)
     public void simpleTest1() {
         FriendService service = new FriendService(
                 api, new PerfThreadFactory(perfRule.getSimulation())
@@ -46,9 +48,6 @@ public class FriendServiceTest {
 
         List<ProfilePic> res = service.getFriendsProfilePictures();
         assertEquals(res.size(), ids.size());
-        assertThat(
-                ctx.getPerfStats().meanMeasuredTime() , lessThan(37000.0)
-        );
     }
 
 }
