@@ -4,7 +4,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 import uk.jamesdal.perfmock.perf.PerfModel;
 
 
-public class Uniform extends PerfModel {
+public class Uniform implements PerfModel {
     private final UniformRealDistribution uniform;
 
     public Uniform(Double lower, Double upper) {

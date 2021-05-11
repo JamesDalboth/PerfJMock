@@ -7,5 +7,7 @@ public enum EventTypes {
     JOIN,
     MODEL,
     TASK_JOIN,
-    TASK_FINISH
+    TASK_FINISH,
+    BLOCKED,
+    TASK_SUBMITTED
 }

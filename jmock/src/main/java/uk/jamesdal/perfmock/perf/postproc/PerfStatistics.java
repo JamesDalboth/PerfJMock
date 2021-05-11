@@ -129,8 +129,7 @@ public class PerfStatistics {
         for (int i = 0; i < times.size(); i++) {
             data[i] = times.get(i);
         }
-        double val = kolmogorovSmirnovTest(normalDistribution, data);
-        System.out.println(val);
+
         return !kolmogorovSmirnovTest(normalDistribution, data, alpha);
     }
 }

@@ -1,6 +1,6 @@
 package uk.jamesdal.perfmock.perf;
 
-import uk.jamesdal.perfmock.perf.exceptions.EventMissingException;
+import uk.jamesdal.perfmock.perf.concurrent.PerfFutureTask;
 import uk.jamesdal.perfmock.perf.events.EventTypes;
 import uk.jamesdal.perfmock.perf.events.ForkEvent;
 import uk.jamesdal.perfmock.perf.events.JoinEvent;
@@ -9,6 +9,8 @@ import uk.jamesdal.perfmock.perf.events.PauseEvent;
 import uk.jamesdal.perfmock.perf.events.PlayEvent;
 import uk.jamesdal.perfmock.perf.events.TaskFinishEvent;
 import uk.jamesdal.perfmock.perf.events.TaskJoinEvent;
+import uk.jamesdal.perfmock.perf.events.TaskSubmittedEvent;
+import uk.jamesdal.perfmock.perf.exceptions.EventMissingException;
 import uk.jamesdal.perfmock.perf.postproc.IterResult;
 import uk.jamesdal.perfmock.perf.postproc.PerfStatistics;
 import uk.jamesdal.perfmock.perf.postproc.ReportGenerator;
@@ -106,6 +108,15 @@ public class Simulation {
         }
 
         return quickestThread;
+    }
+
+    public double getTaskSubmittedTime(PerfFutureTask<?> task) {
+        TaskSubmittedEvent taskSubmittedEvent =
+                submittedBackwardsSearch(history, task);
+        if (taskSubmittedEvent == null) {
+            throw new EventMissingException();
+        }
+        return taskSubmittedEvent.getSimTime();
     }
 
     public void usingFakeThread(long virtualThreadId) {
@@ -275,6 +286,21 @@ public class Simulation {
         );
     }
 
+    private TaskSubmittedEvent submittedBackwardsSearch(List<SimEvent> history,
+                                                        PerfFutureTask<?> task) {
+        for (int i = history.size() - 1; i > 0; i--) {
+            SimEvent event = history.get(i);
+            if (event.getType() == EventTypes.TASK_SUBMITTED) {
+                TaskSubmittedEvent submittedEvent = (TaskSubmittedEvent) event;
+                if (submittedEvent.getTask().equals(task)) {
+                    return submittedEvent;
+                }
+            }
+        }
+
+        return null;
+    }
+
     // Search a History for task finish event which matches callable
     private TaskFinishEvent callableBackwardsSearch(List<SimEvent> history,
                                                     Callable<?> task) {
@@ -298,4 +324,6 @@ public class Simulation {
         }
         return id;
     }
+
+
 }

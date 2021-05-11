@@ -1,4 +1,4 @@
-package uk.jamesdal.perfmock.perf.concurrent;
+package uk.jamesdal.perfmock.perf.concurrent.queues;
 
 import java.util.Collection;
 import java.util.HashMap;

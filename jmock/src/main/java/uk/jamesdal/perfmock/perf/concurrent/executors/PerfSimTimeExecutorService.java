@@ -1,14 +1,27 @@
-package uk.jamesdal.perfmock.perf.concurrent;
+package uk.jamesdal.perfmock.perf.concurrent.executors;
 
-import uk.jamesdal.perfmock.perf.exceptions.ShutdownException;
 import uk.jamesdal.perfmock.perf.Simulation;
+import uk.jamesdal.perfmock.perf.concurrent.PerfFutureTask;
+import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
+import uk.jamesdal.perfmock.perf.events.BlockedEvent;
+import uk.jamesdal.perfmock.perf.exceptions.ShutdownException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-public class PerfExecutorService implements ExecutorService {
+public class PerfSimTimeExecutorService implements ExecutorService {
 
     public static final int KEEP_ALIVE = 10;
     private final Worker worker;
@@ -18,11 +31,16 @@ public class PerfExecutorService implements ExecutorService {
 
     private boolean shutdown;
 
-    public static PerfExecutorService fixedThreadPool(int coreSize, PerfThreadFactory perfThreadFactory) {
-        return new PerfExecutorService(coreSize, new LinkedBlockingQueue<>(), perfThreadFactory.getSimulation());
+    public static PerfSimTimeExecutorService fixedThreadPool(int coreSize, PerfThreadFactory perfThreadFactory) {
+        return new PerfSimTimeExecutorService(coreSize, new LinkedBlockingQueue<>(), perfThreadFactory.getSimulation());
     }
 
-    public PerfExecutorService(int coreSize, BlockingQueue<Runnable> tasks, Simulation simulation) {
+
+    public static PerfSimTimeExecutorService fixedThreadPoolPriority(int coreSize, PerfThreadFactory perfThreadFactory) {
+        return new PerfSimTimeExecutorService(coreSize, new PriorityBlockingQueue<>(), perfThreadFactory.getSimulation());
+    }
+
+    public PerfSimTimeExecutorService(int coreSize, BlockingQueue<Runnable> tasks, Simulation simulation) {
         this.workQueue = tasks;
         this.coreSize = coreSize;
         this.shutdown = false;
@@ -180,14 +198,22 @@ public class PerfExecutorService implements ExecutorService {
         public void run() {
             int tasksCompleted = 0;
 
-            Runnable task;
+            PerfFutureTask<?> task;
             while (running) {
                 task = getTask();
                 if (task == null) {
                     continue;
                 }
-
+                double submittedTime = simulation.getTaskSubmittedTime(task);
                 long currentThread = getNextThread(tasksCompleted, threadIds);
+                double threadSimTime = simulation.getSimTime(currentThread);
+                double waitTime = submittedTime - threadSimTime;
+                if (waitTime > 0) {
+                    simulation.addEvent(new BlockedEvent(
+                            submittedTime, simulation.getRealTime()
+                    ));
+                }
+
                 simulation.usingFakeThread(currentThread);
 
                 task.run();
@@ -207,9 +233,11 @@ public class PerfExecutorService implements ExecutorService {
             return simulation.getThreadWithSmallestSimTime(threadIds);
         }
 
-        private Runnable getTask() {
+        private PerfFutureTask<?> getTask() {
             try {
-                return workQueue.poll(KEEP_ALIVE, TimeUnit.MILLISECONDS);
+                return (PerfFutureTask<?>) workQueue.poll(
+                        KEEP_ALIVE, TimeUnit.MILLISECONDS
+                );
             } catch (InterruptedException retry) {
                 return null;
             }
