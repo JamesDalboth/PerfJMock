@@ -1,22 +1,20 @@
 package uk.jamesdal.perfmock.FriendServiceExecutor;
 
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.junit.Rule;
 import org.junit.Test;
 import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
 import uk.jamesdal.perfmock.lib.concurrent.Synchroniser;
 import uk.jamesdal.perfmock.perf.PerfRule;
-import uk.jamesdal.perfmock.perf.annotations.PerfComparator;
-import uk.jamesdal.perfmock.perf.annotations.PerfMode;
-import uk.jamesdal.perfmock.perf.annotations.PerfRequirement;
 import uk.jamesdal.perfmock.perf.annotations.PerfTest;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
+import uk.jamesdal.perfmock.perf.generators.IntegerGenerator;
+import uk.jamesdal.perfmock.perf.generators.ListGenerator;
+import uk.jamesdal.perfmock.perf.models.Normal;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
-import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class FriendServiceTest {
 
@@ -29,25 +27,31 @@ public class FriendServiceTest {
     }};
 
     private final FriendApi api = ctx.mock(FriendApi.class);
+    private final ListGenerator<Integer> listGenerator = new ListGenerator<>(
+            new IntegerGenerator(new UniformIntegerDistribution(0, 100)),
+            new Normal(21.0, 5.0)
+    );
 
-    private final List<Integer> ids = Collections.nCopies(21, 1);
+    private List<Integer> ids;
 
     @Test
-    @PerfTest(iterations = 1000, warmups = 0)
-    @PerfRequirement(mode = PerfMode.MEAN, comparator = PerfComparator.LESS_THAN, value = 37000)
+    @PerfTest(iterations = 2000, warmups = 0)
     public void simpleTest1() {
         FriendService service = new FriendService(
                 api, new PerfThreadFactory(perfRule.getSimulation())
         );
 
+        ids = listGenerator.generate();
+
         ctx.checking(new Expectations() {{
-            oneOf(api).getFriends(); will(returnValue(ids)); taking(seconds(0));
+            oneOf(api).getFriends();
+                will(returnValue(ids));
+                taking(seconds(1));
             allowing(api).getProfilePic(with(any(Integer.class)));
-                will(returnValue(new ProfilePic())); taking(seconds(5));
+                will(returnValue(new ProfilePic()));
+                taking(seconds(new PictureRetrievalModel()));
         }});
 
-        List<ProfilePic> res = service.getFriendsProfilePictures();
-        assertEquals(res.size(), ids.size());
+        service.getFriendsProfilePictures();
     }
-
 }

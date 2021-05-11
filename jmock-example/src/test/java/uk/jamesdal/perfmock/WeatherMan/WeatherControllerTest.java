@@ -4,21 +4,22 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Rule;
+import org.junit.Test;
 import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
 import uk.jamesdal.perfmock.perf.PerfRule;
 import uk.jamesdal.perfmock.perf.annotations.PerfTest;
-import org.junit.Test;
-import org.junit.Rule;
 import uk.jamesdal.perfmock.perf.models.Normal;
+import uk.jamesdal.perfmock.perf.postproc.PerfStatistics;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
 import java.time.LocalDate;
 import java.util.Random;
 import java.util.function.Supplier;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class WeatherControllerTest {
@@ -63,9 +64,23 @@ public class WeatherControllerTest {
             ctlr.predict(date);
         });
 
-        assertTrue(ctx.getPerfStats().matchesDistribution(
-                new NormalDistribution(12500, 2500), 0.05)
+        assertThat(ctx.perfResults(),
+                matchesDistr(new NormalDistribution(12500, 2500), 0.05)
         );
+    }
+
+    private TypeSafeMatcher<PerfStatistics> matchesDistr(NormalDistribution normalDistribution, double alpha) {
+        return new TypeSafeMatcher<PerfStatistics>() {
+            @Override
+            protected boolean matchesSafely(PerfStatistics perfStatistics) {
+                return perfStatistics.matchesDistribution(normalDistribution, alpha);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+
+            }
+        };
     }
 
     private Matcher<LocalDate> pastDate() {
@@ -107,7 +122,7 @@ public class WeatherControllerTest {
             ctlr.predict(date);
         });
 
-        assertTrue(ctx.getPerfStats().meanMeasuredTime() < 5000);
+        assertTrue(ctx.perfResults().meanMeasuredTime() < 5000);
     }
 
     @Test
@@ -134,6 +149,6 @@ public class WeatherControllerTest {
             ctlr.predict(dateSupplier.get());
         });
 
-        assertThat(ctx.getPerfStats().meanMeasuredTime() , lessThan(15000.0));
+        assertThat(ctx.perfResults().meanMeasuredTime() , lessThan(15000.0));
     }
 }

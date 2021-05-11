@@ -1,12 +1,14 @@
 package uk.jamesdal.perfmock.FriendServiceExecutor;
 
-import uk.jamesdal.perfmock.perf.concurrent.PerfExecutorService;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
-import uk.jamesdal.perfmock.perf.concurrent.PerfThreadPoolExecutor;
+import uk.jamesdal.perfmock.perf.concurrent.executors.PerfSimTimeExecutorService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 class FriendService {
 
@@ -24,17 +26,15 @@ class FriendService {
 
         List<Future<ProfilePic>> futureTasks = new ArrayList<>();
 
-        ExecutorService executorService = PerfExecutorService.fixedThreadPool(
-                4, threadFactory
-        );
-
+        PerfSimTimeExecutorService executorService =
+                PerfSimTimeExecutorService.fixedThreadPool(3, threadFactory);
         for (Integer id : friendIds) {
-            Future<ProfilePic> future = executorService.submit(getProfilePic(id));
+            int priority = id < 50 ? 2 : 1;
+            Future<ProfilePic> future = executorService.submit(getProfilePic(id), priority);
             futureTasks.add(future);
         }
 
         List<ProfilePic> results = new ArrayList<>();
-
         for (Future<ProfilePic> futureTask : futureTasks) {
             try {
                 results.add(futureTask.get());

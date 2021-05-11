@@ -1,6 +1,7 @@
 package uk.jamesdal.perfmock.perf.models;
 
 import org.apache.commons.math3.distribution.UniformRealDistribution;
+import uk.jamesdal.perfmock.api.Invocation;
 import uk.jamesdal.perfmock.perf.PerfModel;
 
 
@@ -15,4 +16,8 @@ public class Uniform implements PerfModel {
     public double sample() {
         return uniform.sample();
     }
+
+    // Not Used
+    @Override
+    public void setInvocation(Invocation invocation) {}
 }

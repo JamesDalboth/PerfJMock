@@ -5,6 +5,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.core.*;
 import uk.jamesdal.perfmock.api.Action;
 import uk.jamesdal.perfmock.api.ExpectationCollector;
+import uk.jamesdal.perfmock.api.Invocation;
 import uk.jamesdal.perfmock.internal.*;
 import uk.jamesdal.perfmock.lib.action.*;
 import uk.jamesdal.perfmock.perf.PerfModel;
@@ -316,6 +317,11 @@ public abstract class AbstractExpectations implements ExpectationBuilder,
             public double sample() {
                 return model.sample() * 1000;
             }
+
+            @Override
+            public void setInvocation(Invocation invocation) {
+                model.setInvocation(invocation);
+            }
         };
     }
 
@@ -328,6 +334,11 @@ public abstract class AbstractExpectations implements ExpectationBuilder,
             @Override
             public double sample() {
                 return model.sample() * 1000 * 60;
+            }
+
+            @Override
+            public void setInvocation(Invocation invocation) {
+                model.setInvocation(invocation);
             }
         };
     }

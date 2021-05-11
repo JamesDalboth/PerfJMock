@@ -1,11 +1,14 @@
 package uk.jamesdal.perfmock.PictureProcessor;
 
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.junit.Rule;
 import org.junit.Test;
 import uk.jamesdal.perfmock.Expectations;
 import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
 import uk.jamesdal.perfmock.perf.PerfRule;
 import uk.jamesdal.perfmock.perf.annotations.PerfTest;
+import uk.jamesdal.perfmock.perf.generators.ArrayGenerator;
+import uk.jamesdal.perfmock.perf.generators.ConstGenerator;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
 
 import java.awt.image.BufferedImage;
@@ -23,18 +26,23 @@ public class PictureProcessingTest {
 
     private final String SEARCH_TERM = "search term";
     private final int IMAGE_SIZE = 1000;
-    private final BufferedImage[] IMAGES = new BufferedImage[] {
-            new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, 1),
-            new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, 1),
-            new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, 1),
-            new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, 1),
-            new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, 1)
-    };
+    private final BufferedImage IMAGE =
+            new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, 1);
+    private final ArrayGenerator arrayGenerator = new ArrayGenerator(
+            BufferedImage.class,
+            new ConstGenerator<>(IMAGE),
+            new NormalDistribution(10, 2)
+    );
+
+    private BufferedImage[] IMAGES;
+
 
     @Test
-    @PerfTest(iterations = 100, warmups = 0)
+    @PerfTest(iterations = 1000, warmups = 0)
     public void blurTest() {
         PictureProcessing processor = new PictureProcessing(pictureSearcher, pictureUploader);
+
+        IMAGES = (BufferedImage[]) arrayGenerator.generate();
 
         ctx.checking(new Expectations() {{
             allowing(pictureSearcher).search(SEARCH_TERM); will(returnValue(IMAGES)); taking(seconds(1));

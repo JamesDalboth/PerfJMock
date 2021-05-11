@@ -1,8 +1,7 @@
 package uk.jamesdal.perfmock.TestingZone;
 
-import uk.jamesdal.perfmock.perf.concurrent.PerfExecutorService;
+import uk.jamesdal.perfmock.perf.concurrent.executors.PerfSimTimeExecutorService;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
-import uk.jamesdal.perfmock.perf.concurrent.PerfThreadPoolExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ public class RoundRobinIncomplete {
 //                2, threadFactory
 //        );
 
-        ExecutorService executorService = new PerfExecutorService(
+        ExecutorService executorService = new PerfSimTimeExecutorService(
                 2,
                 new LinkedBlockingQueue<>(),
                 threadFactory.getSimulation()

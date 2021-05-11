@@ -46,7 +46,7 @@ public class PerfMockery extends JUnitRuleMockery {
         super.checking(expectations);
     }
 
-    public PerfStatistics getPerfStats() {
+    public PerfStatistics perfResults() {
         return simulation.getStats();
     }
 }

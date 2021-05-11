@@ -100,6 +100,16 @@ public class PerfSimTimeExecutorService implements ExecutorService {
         return ftask;
     }
 
+    public <T> Future<T> submit(Callable<T> task, int priority) {
+        if (isShutdown()) {
+            throw new ShutdownException();
+        }
+        if (task == null) throw new NullPointerException();
+        RunnableFuture<T> ftask = newTaskFor(task, priority);
+        execute(ftask);
+        return ftask;
+    }
+
     @Override
     public <T> Future<T> submit(Runnable task, T result) {
         if (isShutdown()) {
@@ -152,6 +162,10 @@ public class PerfSimTimeExecutorService implements ExecutorService {
 
     private <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
         return new PerfFutureTask<>(callable, simulation);
+    }
+
+    private <T> RunnableFuture<T> newTaskFor(Callable<T> callable, int priority) {
+        return new PerfFutureTask<>(callable, simulation, priority);
     }
 
     private Worker initWorker() {

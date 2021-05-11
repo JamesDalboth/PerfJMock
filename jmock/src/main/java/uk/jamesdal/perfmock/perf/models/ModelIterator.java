@@ -1,5 +1,6 @@
 package uk.jamesdal.perfmock.perf.models;
 
+import uk.jamesdal.perfmock.api.Invocation;
 import uk.jamesdal.perfmock.perf.PerfModel;
 
 import java.util.Arrays;
@@ -20,4 +21,8 @@ public class ModelIterator implements PerfModel {
     public double sample() {
         return modelList.iterator().next().sample();
     }
+
+    // Not Used
+    @Override
+    public void setInvocation(Invocation invocation) {}
 }
