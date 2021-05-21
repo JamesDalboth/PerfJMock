@@ -5,7 +5,9 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import uk.jamesdal.perfmock.perf.annotations.PerfRequirement;
 import uk.jamesdal.perfmock.perf.annotations.PerfTest;
+import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 import uk.jamesdal.perfmock.perf.postproc.PerfRequirements;
+import uk.jamesdal.perfmock.perf.postproc.PerfStatistics;
 import uk.jamesdal.perfmock.perf.postproc.ReportGenerator;
 import uk.jamesdal.perfmock.perf.postproc.RequirementChecker;
 import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
@@ -50,30 +52,24 @@ public class PerfRule implements TestRule {
                     long iterations = perfTestAnnotation.iterations();
                     long warmups = perfTestAnnotation.warmups();
 
-                    for (int i = 0; i < warmups; i++) {
-                        simulation.reset();
+                    simulation.enable();
 
-                        simulation.play();
-                        base.evaluate();
-                        simulation.pause();
+                    for (int i = 0; i < warmups; i++) {
+                        run(base);
                     }
 
                     for (int i = 0; i < iterations; i++) {
-                        simulation.reset();
-
-                        simulation.play();
-                        base.evaluate();
-                        simulation.pause();
-
-                        simulation.save();
-
+                        runWithSave(base);
                     }
 
-                    RequirementChecker.doesStatsMatchRequirements(
-                            simulation.getStats(), requirements
-                    );
-
-                    simulation.genReport();
+                    try {
+                        RequirementChecker.doesStatsMatchRequirements(
+                                simulation.getStats(), requirements
+                        );
+                    } finally {
+                        simulation.genReport();
+                        simulation.disable();
+                    }
                 }
             };
         }
@@ -83,5 +79,51 @@ public class PerfRule implements TestRule {
 
     public Simulation getSimulation() {
         return simulation;
+    }
+
+    public void run(Runnable task) {
+        simulation.reset();
+
+        simulation.play();
+        task.run();
+        simulation.pause();
+    }
+
+    public void runWithSave(Runnable task) {
+        run(task);
+
+        simulation.save();
+    }
+
+    public void run(Statement base) {
+        run(() -> {
+            try {
+                base.evaluate();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
+    }
+
+    public void runWithSave(Statement base) {
+        runWithSave(() -> {
+            try {
+                base.evaluate();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
+    }
+
+    public PerfStatistics perfResults() {
+        return simulation.getStats();
+    }
+
+    public PerfThreadFactory getThreadFactory() {
+        return new PerfThreadFactory(simulation);
+    }
+
+    public void genReport() {
+        simulation.genReport();
     }
 }

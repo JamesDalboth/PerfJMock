@@ -30,6 +30,7 @@ public class Simulation {
     private List<Long> threadIds;
     private HashMap<Long, Long> virtualThreadMap;
     private List<SimEvent> history;
+    private boolean enabled;
 
     public Simulation(ReportGenerator reportGenerator) {
         this.reportGenerator = reportGenerator;
@@ -39,6 +40,18 @@ public class Simulation {
         this.threadIds = new ArrayList<>();
         this.history = new ArrayList<>();
         this.virtualThreadMap = new HashMap<>();
+    }
+
+    public void enable() {
+        enabled = true;
+    }
+
+    public void disable() {
+        enabled = false;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
     // Reset timeline to beginning
@@ -324,6 +337,4 @@ public class Simulation {
         }
         return id;
     }
-
-
 }

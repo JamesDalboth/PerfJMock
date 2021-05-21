@@ -23,7 +23,7 @@ import java.util.concurrent.TimeoutException;
 
 public class PerfSimTimeExecutorService implements ExecutorService {
 
-    public static final int KEEP_ALIVE = 10;
+    public static final int KEEP_ALIVE = 5;
     private final Worker worker;
     private final BlockingQueue<Runnable> workQueue;
     private final int coreSize;
@@ -218,19 +218,26 @@ public class PerfSimTimeExecutorService implements ExecutorService {
                 if (task == null) {
                     continue;
                 }
+
+                //System.out.println("GTask " + System.currentTimeMillis());
+
                 double submittedTime = simulation.getTaskSubmittedTime(task);
                 long currentThread = getNextThread(tasksCompleted, threadIds);
                 double threadSimTime = simulation.getSimTime(currentThread);
                 double waitTime = submittedTime - threadSimTime;
+
+                //System.out.println("GThread " + System.currentTimeMillis());
+
+                simulation.usingFakeThread(currentThread);
                 if (waitTime > 0) {
                     simulation.addEvent(new BlockedEvent(
                             submittedTime, simulation.getRealTime()
                     ));
                 }
 
-                simulation.usingFakeThread(currentThread);
-
+                //System.out.println("BTask " + System.currentTimeMillis());
                 task.run();
+                //System.out.println("ATask " + System.currentTimeMillis());
                 tasksCompleted++;
             }
         }

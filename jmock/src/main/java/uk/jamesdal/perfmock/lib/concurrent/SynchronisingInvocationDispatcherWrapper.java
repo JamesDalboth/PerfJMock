@@ -43,4 +43,9 @@ public class SynchronisingInvocationDispatcherWrapper implements InvocationDispa
     public synchronized Object dispatch(Invocation invocation) throws Throwable {
         return delegate.dispatch(invocation);
     }
+
+    @Override
+    public void clear() {
+        delegate.clear();
+    }
 }

@@ -19,7 +19,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class FriendServiceTest {
+public class FriendServiceImplTest {
 
     @Rule
     public PerfRule perfRule = new PerfRule(new ConsoleReportGenerator());

@@ -119,4 +119,8 @@ public class UnsynchronisedInvocationDispatcher implements InvocationDispatcher 
         throw ExpectationError.unexpected("unexpected invocation", invocation);
     }
 
+    @Override
+    public void clear() {
+        expectations.clear();
+    }
 }

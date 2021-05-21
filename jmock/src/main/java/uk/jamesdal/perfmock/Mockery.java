@@ -48,14 +48,15 @@ public class Mockery implements SelfDescribing {
     private Imposteriser imposteriser = JavaReflectionImposteriser.INSTANCE;
     private ExpectationErrorTranslator expectationErrorTranslator = IdentityExpectationErrorTranslator.INSTANCE;
     private MockObjectNamingScheme namingScheme = CamelCaseNamingScheme.INSTANCE;
-    private ThreadingPolicy threadingPolicy = new SingleThreadedPolicy();
 
     private final Set<String> mockNames = new HashSet<String>();
     private final ReturnDefaultValueAction defaultAction = new ReturnDefaultValueAction(imposteriser);
     private final List<Invocation> actualInvocations = new ArrayList<Invocation>();
-    private InvocationDispatcher dispatcher = threadingPolicy.dispatcher();
 
     private Error firstError = null;
+
+    protected ThreadingPolicy threadingPolicy = new SingleThreadedPolicy();
+    protected InvocationDispatcher dispatcher = threadingPolicy.dispatcher();
 
     /* 
      * Policies

@@ -167,7 +167,7 @@ public class InvocationExpectation implements Expectation {
     }
 	
     public Object invoke(Invocation invocation) throws Throwable {
-        if (!Objects.isNull(simulation)) {
+        if (!Objects.isNull(simulation) && simulation.isEnabled()) {
             simulation.pause();
         }
 
@@ -176,7 +176,7 @@ public class InvocationExpectation implements Expectation {
 		final Object result = action.invoke(new Invocation(Invocation.ExpectationMode.ASSERTING, invocation));
         invocation.checkReturnTypeCompatibility(result);
 
-        if (!Objects.isNull(simulation)) {
+        if (!Objects.isNull(simulation) && simulation.isEnabled()) {
             perfModel.setInvocation(invocation);
             simulation.addModel(perfModel.sample());
             simulation.play();

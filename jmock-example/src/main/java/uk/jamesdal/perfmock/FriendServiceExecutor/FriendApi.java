@@ -5,5 +5,5 @@ import java.util.List;
 interface FriendApi {
     List<Integer> getFriends();
 
-    ProfilePic getProfilePic(Integer id);
+    Profile getProfilePic(Integer id);
 }

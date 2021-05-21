@@ -5,6 +5,7 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.commons.math3.stat.inference.TestUtils.kolmogorovSmirnovStatistic;
 import static org.apache.commons.math3.stat.inference.TestUtils.kolmogorovSmirnovTest;
 
 public class PerfStatistics {
@@ -130,6 +131,11 @@ public class PerfStatistics {
             data[i] = times.get(i);
         }
 
-        return !kolmogorovSmirnovTest(normalDistribution, data, alpha);
+        boolean success = !kolmogorovSmirnovTest(normalDistribution, data, alpha);
+        if (!success) {
+            System.out.println("KolmogorovSmirnovTest : " + kolmogorovSmirnovTest(normalDistribution, data));
+        }
+
+        return success;
     }
 }
