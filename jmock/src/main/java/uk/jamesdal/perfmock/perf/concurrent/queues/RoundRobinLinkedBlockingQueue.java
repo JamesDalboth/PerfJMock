@@ -8,14 +8,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class PerfLinkedBlockingQueue<E> implements BlockingQueue<E> {
+public class RoundRobinLinkedBlockingQueue<E> implements BlockingQueue<E> {
     private final HashMap<Integer, LinkedBlockingQueue<E>> queueMap;
     private final HashMap<Long, Integer> threadMap;
     private final ReentrantLock threadAllocationLock;
 
     private Integer currentQueue;
 
-    public PerfLinkedBlockingQueue(int threadPoolSize) {
+    public RoundRobinLinkedBlockingQueue(int threadPoolSize) {
         this.queueMap = new HashMap<>();
         this.threadMap = new HashMap<>();
 

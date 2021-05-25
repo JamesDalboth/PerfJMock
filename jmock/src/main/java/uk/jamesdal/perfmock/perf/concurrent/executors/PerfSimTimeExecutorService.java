@@ -200,7 +200,7 @@ public class PerfSimTimeExecutorService implements ExecutorService {
     private class Worker implements Runnable {
         private final long[] threadIds;
 
-        private boolean running;
+        private volatile boolean running;
         private Thread thread;
 
         private Worker(long[] threadIds) {

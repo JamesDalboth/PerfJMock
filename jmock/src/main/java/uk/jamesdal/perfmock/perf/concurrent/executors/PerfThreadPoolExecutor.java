@@ -2,7 +2,7 @@ package uk.jamesdal.perfmock.perf.concurrent.executors;
 
 import uk.jamesdal.perfmock.perf.Simulation;
 import uk.jamesdal.perfmock.perf.concurrent.PerfFutureTask;
-import uk.jamesdal.perfmock.perf.concurrent.queues.PerfLinkedBlockingQueue;
+import uk.jamesdal.perfmock.perf.concurrent.queues.RoundRobinLinkedBlockingQueue;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 
 import java.util.concurrent.*;
@@ -19,7 +19,7 @@ public class PerfThreadPoolExecutor extends ThreadPoolExecutor {
 
     public static ExecutorService newFixedThreadPoolRoundRobin(int nThreads, PerfThreadFactory threadFactory) {
         ExecutorService es = new PerfThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS,
-                new PerfLinkedBlockingQueue<>(nThreads), threadFactory);
+                new RoundRobinLinkedBlockingQueue<>(nThreads), threadFactory);
 
         // Initilise threads
         for (int i = 0; i < nThreads; i++) {
