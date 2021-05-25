@@ -2,7 +2,7 @@ package uk.jamesdal.perfmock.FriendServiceThreads;
 
 import java.util.List;
 
-interface FriendApi {
+public interface FriendApi {
     List<Integer> getFriends();
 
     ProfilePic getProfilePic(Integer id);

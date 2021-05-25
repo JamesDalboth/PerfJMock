@@ -136,19 +136,16 @@ public class WeatherControllerTest {
             return date;
         };
 
-        ctx.repeat(1000, 0, () -> {
+        ctx.repeat(2000, 100, () -> {
             ctx.checking(new Expectations() {{
-                allowing(weatherDatabase).getInfo(with(pastDate())); will(returnValue(null)); taking(seconds(5));
-                allowing(weatherApi).getInfo(with(pastDate())); will(returnValue(info)); taking(seconds(new Normal(5.0, 1.0)));
-                allowing(weatherDatabase).storeInfo(with(any(WeatherInformation.class))); will(returnValue(null)); taking(seconds(5));
-                allowing(weatherDatabase).getInfo(with(futureDate())); will(returnValue(null)); taking(seconds(15));
                 allowing(weatherApi).getInfo(with(futureDate())); will(returnValue(info)); taking(seconds(new Normal(5.0, 1.0)));
-
+                allowing(weatherApi).getInfo(with(pastDate())); will(returnValue(info)); taking(seconds(new Normal(5.0, 1.0)));
+                allowing(weatherDatabase).storeInfo(with(any(WeatherInformation.class))); taking(seconds(5));
+                allowing(weatherDatabase).getInfo(with(pastDate())); taking(seconds(5));
+                allowing(weatherDatabase).getInfo(with(futureDate())); taking(seconds(15));
             }});
 
             ctlr.predict(dateSupplier.get());
         });
-
-        assertThat(ctx.perfResults().meanMeasuredTime() , lessThan(15000.0));
     }
 }

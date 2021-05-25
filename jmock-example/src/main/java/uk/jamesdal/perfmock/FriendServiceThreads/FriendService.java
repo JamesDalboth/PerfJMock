@@ -5,13 +5,14 @@ import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadFactory;
 
 class FriendService {
 
     private final FriendApi api;
-    private final PerfThreadFactory threadFactory;
+    private final ThreadFactory threadFactory;
 
-    public FriendService(FriendApi api, PerfThreadFactory threadFactory) {
+    public FriendService(FriendApi api, ThreadFactory threadFactory) {
         this.api = api;
         this.threadFactory = threadFactory;
     }
@@ -20,12 +21,12 @@ class FriendService {
     public List<ProfilePic> getFriendsProfilePictures() throws InterruptedException {
         List<Integer> friendIds = api.getFriends();
 
-        List<PerfThread> threads = new ArrayList<>();
+        List<Thread> threads = new ArrayList<>();
         List<GetProfilePic> runnables = new ArrayList<>();
 
         for (Integer id : friendIds) {
             GetProfilePic runnable = new GetProfilePic(id);
-            PerfThread thread = (PerfThread) threadFactory.newThread(runnable);
+            Thread thread = threadFactory.newThread(runnable);
             thread.start();
             threads.add(thread);
             runnables.add(runnable);
@@ -34,9 +35,9 @@ class FriendService {
         List<ProfilePic> results = new ArrayList<>();
 
         for (int i = 0; i < threads.size(); i++) {
-            PerfThread thread = threads.get(i);
+            Thread thread = threads.get(i);
             GetProfilePic runnable = runnables.get(i);
-            thread.perfJoin();
+            thread.join();
             results.add(runnable.getResult());
         }
 

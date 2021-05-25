@@ -10,6 +10,7 @@ import uk.jamesdal.perfmock.perf.PerfRule;
 import uk.jamesdal.perfmock.perf.annotations.PerfTest;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 import uk.jamesdal.perfmock.perf.concurrent.executors.PerfSimTimeExecutorService;
+import uk.jamesdal.perfmock.perf.concurrent.executors.PerfThreadPoolExecutor;
 import uk.jamesdal.perfmock.perf.generators.IntegerGenerator;
 import uk.jamesdal.perfmock.perf.generators.ListGenerator;
 import uk.jamesdal.perfmock.perf.models.Normal;
@@ -30,7 +31,7 @@ public class FriendServiceImplTest {
         setThreadingPolicy(new Synchroniser());
     }};
 
-    public static final Normal FIXED_THREAD_POOL_3_DIST = new Normal(39100.0, 55000000.0);
+    public static final Normal FIXED_THREAD_POOL_3_DIST = new Normal(37800.0, 17407564.0);
 
     private final PerfThreadFactory perfThreadFactory = new PerfThreadFactory(perfRule.getSimulation());
 
@@ -40,11 +41,12 @@ public class FriendServiceImplTest {
             new Normal(21.0, 5.0)
     );
 
+    private final Profile profile = ctx.mock(Profile.class);
+
     private List<Integer> ids = listGenerator.generate();
-    private Profile profile = ctx.mock(Profile.class);
 
     @Test
-    @PerfTest(iterations = 2000, warmups = 0)
+    @PerfTest(iterations = 20000, warmups = 0)
     public void fixedPool1() {
         FriendServiceImpl service = new FriendServiceImpl(
                 api, PerfSimTimeExecutorService.fixedThreadPool(1, perfThreadFactory)
@@ -58,14 +60,14 @@ public class FriendServiceImplTest {
                 taking(seconds(1));
             allowing(api).getProfilePic(with(any(Integer.class)));
                 will(returnValue(profile));
-                taking(seconds(5));
+                taking(seconds(new PictureRetrievalModel()));
         }});
 
         service.getFriendsProfilePictures();
     }
 
     @Test
-    @PerfTest(iterations = 2000, warmups = 0)
+    @PerfTest(iterations = 20000, warmups = 0)
     public void fixedPool2() {
         FriendServiceImpl service = new FriendServiceImpl(
                 api, PerfSimTimeExecutorService.fixedThreadPool(2, perfThreadFactory)
@@ -87,7 +89,7 @@ public class FriendServiceImplTest {
 
     @Test
     public void fixedPool3() {
-        ctx.repeat(2000, () -> {
+        ctx.repeat("fixedPool3", 20000, 100, () -> {
             FriendServiceImpl service = new FriendServiceImpl(
                     api, PerfSimTimeExecutorService.fixedThreadPool(3, perfThreadFactory)
             );
@@ -96,16 +98,16 @@ public class FriendServiceImplTest {
 
             ctx.checking(new Expectations() {{
                 oneOf(api).getFriends();
-                will(returnValue(ids));
-                taking(seconds(1));
+                    will(returnValue(ids));
+                    taking(seconds(1));
                 allowing(api).getProfilePic(with(any(Integer.class)));
-                will(returnValue(profile));
-                taking(seconds(new PictureRetrievalModel()));
+                    will(returnValue(profile));
+                    taking(seconds(new Normal(5.0, 1.0)));
             }});
 
             service.getFriendsProfilePictures();
         });
 
-        assertTrue(ctx.perfResults().matchesDistribution(FIXED_THREAD_POOL_3_DIST, 0.05));
+        assertTrue(ctx.perfResults().matchesDistribution(FIXED_THREAD_POOL_3_DIST, 0.01));
     }
 }

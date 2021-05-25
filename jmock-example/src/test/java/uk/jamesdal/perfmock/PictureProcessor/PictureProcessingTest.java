@@ -25,7 +25,7 @@ public class PictureProcessingTest {
     private final PictureUploader pictureUploader = ctx.mock(PictureUploader.class);
 
     private final String SEARCH_TERM = "search term";
-    private final int IMAGE_SIZE = 1000;
+    private final int IMAGE_SIZE = 100;
     private final BufferedImage IMAGE =
             new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, 1);
     private final ArrayGenerator arrayGenerator = new ArrayGenerator(
@@ -36,9 +36,8 @@ public class PictureProcessingTest {
 
     private BufferedImage[] IMAGES;
 
-
     @Test
-    @PerfTest(iterations = 1000, warmups = 0)
+    @PerfTest(iterations = 2000, warmups = 100)
     public void blurTest() {
         PictureProcessing processor = new PictureProcessing(pictureSearcher, pictureUploader);
 

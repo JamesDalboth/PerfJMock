@@ -67,7 +67,7 @@ public class PerfRule implements TestRule {
                                 simulation.getStats(), requirements
                         );
                     } finally {
-                        simulation.genReport();
+                        simulation.genReport(description.getMethodName());
                         simulation.disable();
                     }
                 }
@@ -125,5 +125,9 @@ public class PerfRule implements TestRule {
 
     public void genReport() {
         simulation.genReport();
+    }
+
+    public void genReport(String testName) {
+        simulation.genReport(testName);
     }
 }

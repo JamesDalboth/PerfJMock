@@ -17,6 +17,8 @@ import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerato
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 
 public class FriendServiceImplTest {
@@ -34,20 +36,25 @@ public class FriendServiceImplTest {
     private final List<Integer> ids = Collections.nCopies(21, 1);
 
     @Test
-    @PerfTest(iterations = 50, warmups = 0)
-    @PerfRequirement(mode = PerfMode.MEAN, comparator = PerfComparator.LESS_THAN, value = 7000.0)
-    @PerfRequirement(mode = PerfMode.MAX, comparator = PerfComparator.LESS_THAN, value = 45000.0)
-    public void simpleTest1() throws InterruptedException {
-        FriendService service = new FriendService(api, new PerfThreadFactory(perfRule.getSimulation()));
+    public void getProfilePictures() {
+        FriendService service = new FriendService(api, perfRule.getThreadFactory());
 
-        ctx.checking(new Expectations() {{
-            oneOf(api).getFriends(); will(returnValue(ids)); taking(new Normal(5.0, 10.0));
-            allowing(api).getProfilePic(with(any(Integer.class))); will(returnValue(new ProfilePic())); taking(seconds(5));
-        }});
+        ctx.repeat(2000, 100, () -> {
+            ctx.checking(new Expectations() {{
+                oneOf(api).getFriends(); will(returnValue(ids)); taking(seconds(1));
+                allowing(api).getProfilePic(with(any(Integer.class))); will(returnValue(new ProfilePic())); taking(seconds(5));
+            }});
 
-        List<ProfilePic> res = service.getFriendsProfilePictures();
-        assertEquals(res.size(), ids.size());
-        //assertThat(ctx.getPerfStats().meanMeasuredTime() , lessThan(37000.0));
+            List<ProfilePic> res = null;
+            try {
+                res = service.getFriendsProfilePictures();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            assertEquals(res.size(), ids.size());
+        });
+
+        assertThat(ctx.perfResults().meanMeasuredTime() , lessThan(37000.0));
     }
 
 }

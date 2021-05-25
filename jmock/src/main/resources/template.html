@@ -15,7 +15,7 @@
                 ['', /*[[${val2}]]*/],
                 ['', /*[[${val3}]]*/],
                 ['', /*[[${val4}]]*/],
-                ['[[${range5}]]', /*[[${val5}]]*/],
+                ['', /*[[${val5}]]*/],
                 ['', /*[[${val6}]]*/],
                 ['', /*[[${val7}]]*/],
                 ['', /*[[${val8}]]*/],
@@ -25,7 +25,7 @@
                 ['', /*[[${val12}]]*/],
                 ['', /*[[${val13}]]*/],
                 ['', /*[[${val14}]]*/],
-                ['[[${range15}]]', /*[[${val15}]]*/],
+                ['', /*[[${val15}]]*/],
                 ['', /*[[${val16}]]*/],
                 ['', /*[[${val17}]]*/],
                 ['', /*[[${val18}]]*/],
@@ -44,9 +44,45 @@
             chart.draw(data, options);
         }
     </script>
+    <style type="text/css">
+        .tg  {border-collapse:collapse;border-color:#aaa;border-spacing:0;}
+        .tg td{background-color:#fff;border-color:#aaa;border-style:solid;border-width:1px;color:#333;
+          font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
+        .tg th{background-color:#f38630;border-color:#aaa;border-style:solid;border-width:1px;color:#fff;
+          font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+        .tg .tg-we2y{background-color:#3166ff;border-color:inherit;font-family:"Lucida Console", Monaco, monospace !important;;
+          text-align:left;vertical-align:top}
+        .tg .tg-gxdx{background-color:#3166ff;border-color:inherit;font-family:"Lucida Console", Monaco, monospace !important;;
+          font-weight:bold;text-align:left;vertical-align:top}
+        .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+    </style>
 </head>
 <body>
 <!-- Identify where the chart should be drawn. -->
-<div id="chart"/>
+<div id="chart"></div>
+<div id="table">
+    <table class="tg">
+        <thead>
+        <tr>
+            <th class="tg-gxdx">Test Results<br></th>
+            <th class="tg-we2y">Average Time</th>
+            <th class="tg-we2y">Total Test Run Time</th>
+            <th class="tg-we2y">Min Time</th>
+            <th class="tg-we2y">Max Time</th>
+            <th class="tg-we2y">Standard Deviation</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="tg-0pky"><span th:text="${testname}"/></td>
+            <td class="tg-0pky"><span th:text="${testaverage}"/></td>
+            <td class="tg-0pky"><span th:text="${testtotal}"/></td>
+            <td class="tg-0pky"><span th:text="${testmin}"/></td>
+            <td class="tg-0pky"><span th:text="${testmax}"/></td>
+            <td class="tg-0pky"><span th:text="${testvar}"/></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>

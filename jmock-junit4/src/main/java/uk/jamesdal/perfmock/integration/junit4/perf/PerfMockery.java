@@ -9,9 +9,20 @@ import uk.jamesdal.perfmock.perf.postproc.PerfStatistics;
 public class PerfMockery extends JUnitRuleMockery {
 
     private final PerfRule perfRule;
+    private String testName;
 
     public PerfMockery(PerfRule perfRule) {
         this.perfRule = perfRule;
+    }
+
+    public void repeat(String testName, int iterations, int warmups, Runnable task) {
+        this.testName = testName;
+        repeat(iterations, warmups, task);
+    }
+
+    public void repeat(String testName, int iterations, Runnable task) {
+        this.testName = testName;
+        repeat(iterations, task);
     }
 
     public void repeat(int iterations, Runnable task) {
@@ -20,7 +31,7 @@ public class PerfMockery extends JUnitRuleMockery {
             perfRule.runWithSave(task);
         }
 
-        perfRule.genReport();
+        perfRule.genReport(testName);
         perfRule.getSimulation().disable();
     }
 

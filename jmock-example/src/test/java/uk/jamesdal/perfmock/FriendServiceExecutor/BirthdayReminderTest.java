@@ -39,7 +39,7 @@ public class BirthdayReminderTest {
     );
 
     @Test
-    @PerfTest(iterations = 2000)
+    @PerfTest(iterations = 2000, warmups = 100)
     @PerfRequirement(mode = PerfMode.MEAN, comparator = PerfComparator.LESS_THAN, value = 50000)
     public void remindTest() {
         BirthdayReminder birthdayReminder = new BirthdayReminder(friendService, calendarService);

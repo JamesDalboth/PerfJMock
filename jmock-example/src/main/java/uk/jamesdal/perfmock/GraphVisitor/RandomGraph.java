@@ -1,8 +1,5 @@
 package uk.jamesdal.perfmock.GraphVisitor;
 
-import uk.jamesdal.perfmock.Expectations;
-import uk.jamesdal.perfmock.integration.junit4.perf.PerfMockery;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,8 +7,12 @@ import java.util.Random;
 
 public class RandomGraph {
 
-    public RandomGraph(int verticesNo, PerfMockery ctx) {
-        createMocks(verticesNo, ctx);
+    public RandomGraph(int verticesNo) {
+        for (int i = 0; i < verticesNo; i++) {
+            Node node = new Node() {};
+            nodes.put(i, node);
+            edges.put(node, new ArrayList<>());
+        }
     }
 
     private final HashMap<Integer, Node> nodes = new HashMap<>();
@@ -34,28 +35,11 @@ public class RandomGraph {
         }
     }
 
-    public void createMocks(int nodeNo, PerfMockery ctx) {
-        for (int i = 0; i < nodeNo; i++) {
-            Node node = ctx.mock(Node.class, "random" + i);
-            nodes.put(i, node);
-            edges.put(node, new ArrayList<>());
-        }
-    }
-
-    public Expectations createNodeExpectations(NodeProcessor nodeProcessor) {
-        return new Expectations() {{
-            for (Node node : nodes.values()) {
-                allowing(nodeProcessor).process(node); will(returnValue(true)); taking(seconds(0.5));
-            }
-
-            for (Node node : edges.keySet()) {
-                List<Node> children = edges.get(node);
-                allowing(nodeProcessor).getChildren(node); will(returnValue(children.toArray(new Node[0]))); taking(seconds(0.5));
-            }
-        }};
-    }
-
     public Node first() {
         return nodes.get(0);
+    }
+
+    public List<Node> getChildren(Node node) {
+        return edges.get(node);
     }
 }

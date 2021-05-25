@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-class FriendServiceImpl {
+class FriendServiceImpl implements FriendService {
 
     private final FriendApi api;
     private final ExecutorService executorService;
@@ -35,11 +35,6 @@ class FriendServiceImpl {
         }
 
         executorService.shutdown();
-        try {
-            executorService.awaitTermination(100, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         return results;
     }

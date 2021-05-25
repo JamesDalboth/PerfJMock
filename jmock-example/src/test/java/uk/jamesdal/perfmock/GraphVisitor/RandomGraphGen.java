@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class RandomGraph {
+public class RandomGraphGen {
 
-    public RandomGraph(int verticesNo, PerfMockery ctx) {
+    public RandomGraphGen(int verticesNo, PerfMockery ctx) {
         createMocks(verticesNo, ctx);
     }
 

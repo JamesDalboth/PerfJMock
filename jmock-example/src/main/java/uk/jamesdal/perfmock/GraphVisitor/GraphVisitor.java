@@ -1,24 +1,18 @@
 package uk.jamesdal.perfmock.GraphVisitor;
 
-import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
-import uk.jamesdal.perfmock.perf.concurrent.executors.PerfSimTimeExecutorService;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class GraphVisitor {
 
-    private final PerfThreadFactory threadFactory;
+    private final ExecutorService executorService;
     private final NodeProcessor nodeProcessor;
 
-    public GraphVisitor(PerfThreadFactory threadFactory, NodeProcessor nodeProcessor) {
-        this.threadFactory = threadFactory;
+    public GraphVisitor(ExecutorService executorService, NodeProcessor nodeProcessor) {
+        this.executorService = executorService;
         this.nodeProcessor = nodeProcessor;
     }
 
@@ -26,7 +20,6 @@ public class GraphVisitor {
         List<Node> visitedNodes = new ArrayList<>();
         Queue<Future<Node[]>> toVisit = new ArrayDeque<>();
 
-        ExecutorService executorService = PerfSimTimeExecutorService.fixedThreadPool(4, threadFactory);
 
         Future<Node[]> future = executorService.submit(visitNodes(start));
         toVisit.add(future);
@@ -42,6 +35,8 @@ public class GraphVisitor {
                 }
             }
         }
+
+        executorService.shutdown();
     }
 
     public Callable<Node[]> visitNodes(Node node) {

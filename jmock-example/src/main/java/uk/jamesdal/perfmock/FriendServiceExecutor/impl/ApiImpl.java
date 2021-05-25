@@ -1,15 +1,31 @@
-package uk.jamesdal.perfmock.FriendServiceThreads.impl;
+package uk.jamesdal.perfmock.FriendServiceExecutor.impl;
 
-import uk.jamesdal.perfmock.FriendServiceThreads.FriendApi;
-import uk.jamesdal.perfmock.FriendServiceThreads.ProfilePic;
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
+import uk.jamesdal.perfmock.FriendServiceExecutor.FriendApi;
+import uk.jamesdal.perfmock.FriendServiceExecutor.Profile;
+import uk.jamesdal.perfmock.perf.generators.IntegerGenerator;
+import uk.jamesdal.perfmock.perf.generators.ListGenerator;
+import uk.jamesdal.perfmock.perf.generators.LocalDateGenerator;
+import uk.jamesdal.perfmock.perf.models.Normal;
 import uk.jamesdal.perfmock.production.SleepFailure;
 
-import java.util.Collections;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ApiImpl implements FriendApi {
 
-    private final List<Integer> ids = Collections.nCopies(21, 1);
+    private LocalDateGenerator generator;
+
+    public ApiImpl() {}
+
+    public ApiImpl(LocalDateGenerator generator) {
+        this.generator = generator;
+    }
+
+    private final ListGenerator<Integer> listGenerator = new ListGenerator<>(
+            new IntegerGenerator(new UniformIntegerDistribution(0, 100)),
+            new Normal(21.0, 5.0)
+    );
 
     @Override
     public List<Integer> getFriends() {
@@ -18,16 +34,38 @@ public class ApiImpl implements FriendApi {
         } catch (InterruptedException e) {
             throw new SleepFailure();
         }
-        return ids;
+        return listGenerator.generate();
     }
 
     @Override
-    public ProfilePic getProfilePic(Integer id) {
+    public Profile getProfilePic(Integer id) {
         try {
-            Thread.sleep(5000);
+            double mean = id < 50 ? 1 : 9;
+            long sleep = (long) new Normal(mean, 0.5).sample();
+            if (sleep > 0) Thread.sleep(sleep * 1000);
         } catch (InterruptedException e) {
             throw new SleepFailure();
         }
-        return new ProfilePic();
+        return new Profile() {
+            @Override
+            public LocalDate getNextBirthday() {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new SleepFailure();
+                }
+                return generator.generate();
+            }
+
+            @Override
+            public String name() {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    throw new SleepFailure();
+                }
+                return "Billy Bob";
+            }
+        };
     }
 }

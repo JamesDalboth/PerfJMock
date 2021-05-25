@@ -2,29 +2,21 @@ package uk.jamesdal.perfmock.perf.postproc.reportgenerators;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
-import org.thymeleaf.templateresolver.ITemplateResolver;
 import uk.jamesdal.perfmock.perf.postproc.PerfStatistics;
 import uk.jamesdal.perfmock.perf.postproc.ReportGenerator;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static java.lang.System.getProperty;
-
 public class HtmlReportGenerator implements ReportGenerator {
-
-    private static final String DEFAULT_REPORT_PATH = getProperty("user.dir") + "/build/reports/junitperf_report.html";
 
     private PerfStatistics stats;
 
@@ -75,18 +67,31 @@ public class HtmlReportGenerator implements ReportGenerator {
         Context context = new Context();
         if (Objects.isNull(testName)) {
             context.setVariable("title", "PerfMock Results");
+            context.setVariable("test.name", "");
         } else {
             context.setVariable("title", "PerfMock Results for " + testName);
+            context.setVariable("testname", testName);
         }
 
         for (int i = 0; i < 20; i++) {
-            context.setVariable("range" + (i + 1), i * unit + min);
+            context.setVariable("range" + (i + 1), round(i * unit + min) + "ms");
             context.setVariable("val" + (i + 1), bucket[i]);
         }
 
+        context.setVariable("testaverage", round(stats.meanMeasuredTime()) + "ms");
+        context.setVariable("testmin", round(stats.minMeasuredTime()) + "ms");
+        context.setVariable("testmax", round(stats.maxMeasuredTime()) + "ms");
+        context.setVariable("testvar", round(Math.sqrt(stats.varMeasuredTime()) / 1000) + "s");
+        context.setVariable("testtotal", round(stats.totalRuntime()) + "ms");
+
         String html = templateEngine.process(path, context);
 
-        File file = new File("PerfHtmlReport.html");
+        File file;
+        if (testName == null) {
+            file = new File("PerfHtmlReport.html");
+        } else {
+            file = new File("PerfHtmlReport-" + testName + ".html");
+        }
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter(file);
@@ -96,5 +101,9 @@ public class HtmlReportGenerator implements ReportGenerator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private double round(double val) {
+        return Math.round(val * 100.0) / 100.0;
     }
 }

@@ -1,5 +1,6 @@
 package uk.jamesdal.perfmock.perf.annotations;
 
+import uk.jamesdal.perfmock.perf.PerfModel;
 import uk.jamesdal.perfmock.perf.postproc.PerfRequirements;
 
 import java.lang.annotation.*;

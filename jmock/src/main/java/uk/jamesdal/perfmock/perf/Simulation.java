@@ -71,6 +71,11 @@ public class Simulation {
         reportGenerator.generateReport();
     }
 
+    public void genReport(String testName) {
+        reportGenerator.setStats(getStats());
+        reportGenerator.generateReport(testName);
+    }
+
     public PerfStatistics getStats() {
         return new PerfStatistics(results);
     }
