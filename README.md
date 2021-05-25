@@ -31,3 +31,7 @@ public void exampleTest() {
 The format of a PerfMock 2.0 test is similar to that of a JMock test. First you define the PerfRule and the PerfMockery. Mock Objects are created as usual. Add the PerfTest annotation to mark a test as a performance test along with the number of iterations required. Expections for functionality look the same but use the method taking to mark the performance profile of a mock object invocation.
 
 This is a simple example and PerfMock 2.0 presents a rich variety of features for the user, such as distribution matching, performance modelling and support for concurrent programs.
+
+# Install
+
+To install and use PerfMock 2.0. Install the 2 jars included in install-jars along with JUnit4 into your project.
