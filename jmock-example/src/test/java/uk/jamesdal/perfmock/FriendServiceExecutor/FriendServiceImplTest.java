@@ -10,7 +10,6 @@ import uk.jamesdal.perfmock.perf.PerfRule;
 import uk.jamesdal.perfmock.perf.annotations.PerfTest;
 import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 import uk.jamesdal.perfmock.perf.concurrent.executors.PerfSimTimeExecutorService;
-import uk.jamesdal.perfmock.perf.concurrent.executors.PerfThreadPoolExecutor;
 import uk.jamesdal.perfmock.perf.generators.IntegerGenerator;
 import uk.jamesdal.perfmock.perf.generators.ListGenerator;
 import uk.jamesdal.perfmock.perf.models.Normal;
