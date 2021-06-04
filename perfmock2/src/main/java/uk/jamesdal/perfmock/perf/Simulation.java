@@ -54,6 +54,12 @@ public class Simulation {
         return enabled;
     }
 
+    public void fullReset() {
+        reset();
+        results.clear();
+        fakeThreadId.set(0);
+    }
+
     // Reset timeline to beginning
     public void reset() {
         history = new ArrayList<>();
@@ -114,7 +120,7 @@ public class Simulation {
         return lastEvent.getRealTime();
     }
 
-    public Long getThreadWithSmallestSimTime(long[] threadIds) {
+    public Long getThreadWithSmallestSimTime(List<Long> threadIds) {
         double smallestSimTime = 0.0;
         Long quickestThread = null;
         for (Long threadId : threadIds) {
@@ -139,6 +145,10 @@ public class Simulation {
 
     public void usingFakeThread(long virtualThreadId) {
         virtualThreadMap.put(Thread.currentThread().getId(), virtualThreadId);
+    }
+
+    public void usingMainThread() {
+        usingFakeThread(1);
     }
 
     // Event Methods
@@ -203,9 +213,15 @@ public class Simulation {
         addEvent(new ForkEvent(getSimTime(), getRealTime(), child), child);
     }
 
-    public long setUpFakeThread() {
+    public void setUpNewThread(long child, SimEvent event) {
+        threadIds.add(child);
+        addEvent(new ForkEvent(event.getSimTime(), event.getRealTime(), child, event.getThreadId()), child);
+    }
+
+    public long setUpFakeThread(int taskSubmitted) {
+        TaskSubmittedEvent event = submittedForwardSearch(history, taskSubmitted);
         long child = -1L - fakeThreadId.getAndIncrement();
-        setUpNewThread(child);
+        setUpNewThread(child, event);
         return child;
     }
 
@@ -225,9 +241,11 @@ public class Simulation {
     }
 
     public void addModel(double time) {
-        addEvent(
-                new ModelEvent(getSimTime() + time, getRealTime(), time)
-        );
+        if (time > 0) {
+            addEvent(
+                    new ModelEvent(getSimTime() + time, getRealTime(), time)
+            );
+        }
     }
 
     public synchronized void addEvent(SimEvent event) {
@@ -329,6 +347,21 @@ public class Simulation {
                 if (finishEvent.getPerfCallable().getTask().equals(task)) {
                     return finishEvent;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    private TaskSubmittedEvent submittedForwardSearch(List<SimEvent> history, int pos) {
+        int count = 0;
+        for (int i = 0; i < history.size(); i++) {
+            SimEvent event = history.get(i);
+            if (event.getType() == EventTypes.TASK_SUBMITTED && event.getThreadId() == 1) {
+                if (count == pos) {
+                    return (TaskSubmittedEvent) event;
+                }
+                count++;
             }
         }
 

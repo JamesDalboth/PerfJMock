@@ -46,35 +46,40 @@ public class PerfRule implements TestRule {
 
         Statement statement = base;
         if (Objects.nonNull(perfTestAnnotation)) {
-            statement = new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    long iterations = perfTestAnnotation.iterations();
-                    long warmups = perfTestAnnotation.warmups();
-
-                    simulation.enable();
-
-                    for (int i = 0; i < warmups; i++) {
-                        run(base);
-                    }
-
-                    for (int i = 0; i < iterations; i++) {
-                        runWithSave(base);
-                    }
-
-                    try {
-                        RequirementChecker.doesStatsMatchRequirements(
-                                simulation.getStats(), requirements
-                        );
-                    } finally {
-                        simulation.genReport(description.getMethodName());
-                        simulation.disable();
-                    }
-                }
-            };
+            statement = performanceTest(
+                    base, description, perfTestAnnotation.iterations(), perfTestAnnotation.warmups(), requirements
+            );
+//            statement = graphOverExperiments(base, description, 10, requirements);
         }
 
         return statement;
+    }
+
+    private Statement performanceTest(Statement base, Description description, long iterations, long warmups,
+                                      PerfRequirement[] requirements) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                simulation.enable();
+
+                for (int i = 0; i < warmups; i++) {
+                    run(base);
+                }
+
+                for (int i = 0; i < iterations; i++) {
+                    runWithSave(base);
+                }
+
+                try {
+                    RequirementChecker.doesStatsMatchRequirements(
+                            simulation.getStats(), requirements
+                    );
+                } finally {
+                    simulation.genReport(description.getMethodName());
+                    simulation.disable();
+                }
+            }
+        };
     }
 
     public Simulation getSimulation() {

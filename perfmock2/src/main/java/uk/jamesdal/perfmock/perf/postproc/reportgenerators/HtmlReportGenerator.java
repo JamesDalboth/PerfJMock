@@ -81,7 +81,7 @@ public class HtmlReportGenerator implements ReportGenerator {
         context.setVariable("testaverage", round(stats.meanMeasuredTime()) + "ms");
         context.setVariable("testmin", round(stats.minMeasuredTime()) + "ms");
         context.setVariable("testmax", round(stats.maxMeasuredTime()) + "ms");
-        context.setVariable("testvar", round(Math.sqrt(stats.varMeasuredTime()) / 1000) + "s");
+        context.setVariable("testvar", round(Math.sqrt(stats.varMeasuredTime())) + "ms");
         context.setVariable("testtotal", round(stats.totalRuntime()) + "ms");
 
         String html = templateEngine.process(path, context);

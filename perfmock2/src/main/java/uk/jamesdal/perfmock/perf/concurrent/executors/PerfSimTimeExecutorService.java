@@ -9,17 +9,7 @@ import uk.jamesdal.perfmock.perf.exceptions.ShutdownException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class PerfSimTimeExecutorService implements ExecutorService {
 
@@ -34,7 +24,6 @@ public class PerfSimTimeExecutorService implements ExecutorService {
     public static PerfSimTimeExecutorService fixedThreadPool(int coreSize, PerfThreadFactory perfThreadFactory) {
         return new PerfSimTimeExecutorService(coreSize, new LinkedBlockingQueue<>(), perfThreadFactory.getSimulation());
     }
-
 
     public static PerfSimTimeExecutorService fixedThreadPoolPriority(int coreSize, PerfThreadFactory perfThreadFactory) {
         return new PerfSimTimeExecutorService(coreSize, new PriorityBlockingQueue<>(), perfThreadFactory.getSimulation());
@@ -169,13 +158,7 @@ public class PerfSimTimeExecutorService implements ExecutorService {
     }
 
     private Worker initWorker() {
-        long[] threadIds = new long[coreSize];
-        for (int i = 0; i < coreSize; i++) {
-            long threadId = simulation.setUpFakeThread();
-            threadIds[i] = threadId;
-        }
-
-        Worker worker = new Worker(threadIds);
+        Worker worker = new Worker();
         Thread thread = new Thread(worker);
         thread.start();
 
@@ -198,13 +181,13 @@ public class PerfSimTimeExecutorService implements ExecutorService {
     }
 
     private class Worker implements Runnable {
-        private final long[] threadIds;
+        private final List<Long> threadIds;
 
         private volatile boolean running;
         private Thread thread;
 
-        private Worker(long[] threadIds) {
-            this.threadIds = threadIds;
+        private Worker() {
+            this.threadIds = new ArrayList<>();
             this.running = true;
         }
 
@@ -222,7 +205,7 @@ public class PerfSimTimeExecutorService implements ExecutorService {
                 //System.out.println("GTask " + System.currentTimeMillis());
 
                 double submittedTime = simulation.getTaskSubmittedTime(task);
-                long currentThread = getNextThread(tasksCompleted, threadIds);
+                long currentThread = getNextThread(tasksCompleted);
                 double threadSimTime = simulation.getSimTime(currentThread);
                 double waitTime = submittedTime - threadSimTime;
 
@@ -246,9 +229,11 @@ public class PerfSimTimeExecutorService implements ExecutorService {
             running = false;
         }
 
-        private long getNextThread(int tasksCompleted, long[] threadIds) {
+        private long getNextThread(int tasksCompleted) {
             if (tasksCompleted < coreSize) {
-                return threadIds[tasksCompleted];
+                long threadId = simulation.setUpFakeThread(tasksCompleted);
+                threadIds.add(threadId);
+                return threadId;
             }
 
             return simulation.getThreadWithSmallestSimTime(threadIds);

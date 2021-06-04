@@ -1,6 +1,10 @@
 package uk.jamesdal.perfmock.perf.postproc;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.RealDistribution;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
+import uk.jamesdal.perfmock.perf.PerfModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +127,7 @@ public class PerfStatistics {
         return total(getMeasuredTimes());
     }
 
-    public boolean matchesDistribution(NormalDistribution normalDistribution,
+    public boolean matchesDistribution(RealDistribution realDistribution,
                                        double alpha) {
         List<Double> times = getMeasuredTimes();
         double[] data = new double[times.size()];
@@ -131,11 +135,25 @@ public class PerfStatistics {
             data[i] = times.get(i);
         }
 
-        boolean success = !kolmogorovSmirnovTest(normalDistribution, data, alpha);
+        boolean success = !kolmogorovSmirnovTest(realDistribution, data, alpha);
         if (!success) {
-            System.out.println("KolmogorovSmirnovTest : " + kolmogorovSmirnovTest(normalDistribution, data));
+            System.out.println("KolmogorovSmirnovTest : " + kolmogorovSmirnovTest(realDistribution, data));
         }
 
         return success;
+    }
+
+    public static TypeSafeMatcher<PerfStatistics> matchesDistr(RealDistribution perfModel, double alpha) {
+        return new TypeSafeMatcher<PerfStatistics>() {
+            @Override
+            protected boolean matchesSafely(PerfStatistics perfStatistics) {
+                return perfStatistics.matchesDistribution(perfModel, alpha);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+
+            }
+        };
     }
 }

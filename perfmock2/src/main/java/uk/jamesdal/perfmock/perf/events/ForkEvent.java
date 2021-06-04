@@ -10,6 +10,11 @@ public class ForkEvent extends SimEvent {
         this.parent = Thread.currentThread().getId();
     }
 
+    public ForkEvent(double simTime, double realTime, long child, long parent) {
+        super(simTime, realTime, child);
+        this.parent = parent;
+    }
+
     @Override
     public EventTypes getType() {
         return EventTypes.FORK;
