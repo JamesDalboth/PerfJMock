@@ -34,4 +34,4 @@ This is a simple example and PerfMock 2.0 presents a rich variety of features fo
 
 # Install
 
-To install and use PerfMock 2.0. Install the 2 jars included in install-jars along with JUnit4 into your project.
+To install and use PerfMock 2.0. Install the jar included in install-jars along with JUnit4 into your project.
