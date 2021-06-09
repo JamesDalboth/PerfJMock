@@ -1,4 +1,6 @@
-# PerfMock 2.0
+![PerfMock 2 0 Logo](https://user-images.githubusercontent.com/21280865/121378698-54545b00-c93b-11eb-8f55-83e1e6c077bd.PNG)
+
+# PerfMock 2.0 
 
 PerfMock 2.0 is a fork off https://github.com/jmock-developers/jmock-library by James Dalboth. Implemented as part of his undergraduate individual project for Imperial College London. Inspired off https://github.com/spikeh/perfmock
 
