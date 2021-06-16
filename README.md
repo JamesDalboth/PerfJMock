@@ -1,4 +1,6 @@
-# PerfMock 2.0
+![PerfMock 2 0 Logo](https://user-images.githubusercontent.com/21280865/121378698-54545b00-c93b-11eb-8f55-83e1e6c077bd.PNG)
+
+# PerfMock 2.0 
 
 PerfMock 2.0 is a fork off https://github.com/jmock-developers/jmock-library by James Dalboth. Implemented as part of his undergraduate individual project for Imperial College London. Inspired off https://github.com/spikeh/perfmock
 
@@ -34,4 +36,4 @@ This is a simple example and PerfMock 2.0 presents a rich variety of features fo
 
 # Install
 
-To install and use PerfMock 2.0. Install the jar included in install-jars along with JUnit4 into your project.
+To install and use PerfMock 2.0. Install the jar included in install-jars along with JUnit4 into your project. [Version 0.2.2](https://github.com/JamesDalboth/PerfMock2.0/blob/master/install-jars/perfmock2-junit4-0.2.2-SNAPSHOT-jar-with-dependencies.jar)
