@@ -24,7 +24,7 @@ public class ApiImpl implements FriendApi {
 
     private final ListGenerator<Integer> listGenerator = new ListGenerator<>(
             new IntegerGenerator(new UniformIntegerDistribution(0, 100)),
-            new Normal(21.0, 5.0)
+            new Normal(21.0, 0.00001)
     );
 
     @Override
@@ -40,8 +40,8 @@ public class ApiImpl implements FriendApi {
     @Override
     public Profile getProfilePic(Integer id) {
         try {
-            double mean = id < 50 ? 1 : 9;
-            long sleep = (long) new Normal(mean, 0.5).sample();
+            double mean = id < 50 ? 5 : 5;
+            long sleep = (long) new Normal(mean, 0.0005).sample();
             if (sleep > 0) Thread.sleep(sleep * 1000);
         } catch (InterruptedException e) {
             throw new SleepFailure();

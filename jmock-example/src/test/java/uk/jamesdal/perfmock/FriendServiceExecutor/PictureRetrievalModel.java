@@ -10,8 +10,8 @@ public class PictureRetrievalModel implements PerfModel {
     @Override
     public double sample() {
         Integer id = (Integer) invocation.getParameter(0);
-        double mean = id < 50 ? 1 : 9;
-        return new Normal(mean, 0.5).sample();
+        double mean = id < 50 ? 5 : 5;
+        return new Normal(5.0, 0.0005).sample();
     }
 
     @Override

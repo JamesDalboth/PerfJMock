@@ -7,7 +7,7 @@
 
     <groupId>uk.jamesdal.perfmock</groupId>
     <artifactId>perfmock-parent</artifactId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.2.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>PerfMock 2 Parent</name>
 

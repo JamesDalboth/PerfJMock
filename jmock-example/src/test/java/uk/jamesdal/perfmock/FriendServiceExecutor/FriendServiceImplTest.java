@@ -12,18 +12,16 @@ import uk.jamesdal.perfmock.perf.concurrent.PerfThreadFactory;
 import uk.jamesdal.perfmock.perf.concurrent.executors.PerfSimTimeExecutorService;
 import uk.jamesdal.perfmock.perf.generators.IntegerGenerator;
 import uk.jamesdal.perfmock.perf.generators.ListGenerator;
+import uk.jamesdal.perfmock.perf.models.Constant;
 import uk.jamesdal.perfmock.perf.models.Normal;
-import uk.jamesdal.perfmock.perf.postproc.reportgenerators.ConsoleReportGenerator;
-import uk.jamesdal.perfmock.perf.postproc.reportgenerators.HtmlReportGenerator;
+import uk.jamesdal.perfmock.perf.postproc.reportgenerators.CSVGenerator;
 
 import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 public class FriendServiceImplTest {
 
     @Rule
-    public PerfRule perfRule = new PerfRule(new ConsoleHtmlReporter(new ConsoleReportGenerator(), new HtmlReportGenerator()));
+    public PerfRule perfRule = new PerfRule(new CSVGenerator());
 
     @Rule
     public PerfMockery ctx = new PerfMockery(perfRule) {{
@@ -37,7 +35,8 @@ public class FriendServiceImplTest {
     private final FriendApi api = ctx.mock(FriendApi.class);
     private final ListGenerator<Integer> listGenerator = new ListGenerator<>(
             new IntegerGenerator(new UniformIntegerDistribution(0, 100)),
-            new Normal(21.0, 5.0)
+            //new Normal(21.0, 5.0)
+            new Constant(21.0)
     );
 
     private final Profile profile = ctx.mock(Profile.class);
@@ -45,10 +44,10 @@ public class FriendServiceImplTest {
     private List<Integer> ids = listGenerator.generate();
 
     @Test
-    @PerfTest(iterations = 20000, warmups = 0)
+    @PerfTest(iterations = 2000, warmups = 0)
     public void fixedPool1() {
         FriendServiceImpl service = new FriendServiceImpl(
-                api, PerfSimTimeExecutorService.fixedThreadPool(1, perfThreadFactory)
+                api, PerfSimTimeExecutorService.fixedThreadPool(3, perfThreadFactory)
         );
 
         ctx.ignore(() -> ids = listGenerator.generate());
@@ -107,6 +106,6 @@ public class FriendServiceImplTest {
             service.getFriendsProfilePictures();
         });
 
-        assertTrue(ctx.perfResults().matchesDistribution(FIXED_THREAD_POOL_3_DIST, 0.01));
+        //assertTrue(ctx.perfResults().matchesDistribution(FIXED_THREAD_POOL_3_DIST, 0.01));
     }
 }

@@ -16,14 +16,7 @@ public class WeatherProduction implements ProductionTest.Runner {
 
     @Override
     public void run() {
-        LocalDate d;
-        if (new Random().nextBoolean()) {
-            d = date2;
-        } else {
-            d = date;
-        }
-
         WeatherController weatherController = new WeatherController(new ApiImpl(), new DatabaseImpl());
-        weatherController.predict(d);
+        weatherController.predict(date);
     }
 }

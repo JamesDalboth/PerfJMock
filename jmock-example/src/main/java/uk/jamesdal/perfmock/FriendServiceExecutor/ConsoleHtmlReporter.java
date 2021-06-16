@@ -10,6 +10,10 @@ public class ConsoleHtmlReporter implements ReportGenerator {
     private final ConsoleReportGenerator consoleReportGenerator;
     private final HtmlReportGenerator htmlReportGenerator;
 
+    public ConsoleHtmlReporter() {
+        this(new ConsoleReportGenerator(), new HtmlReportGenerator());
+    }
+
     public ConsoleHtmlReporter(ConsoleReportGenerator consoleReportGenerator, HtmlReportGenerator htmlReportGenerator) {
         this.consoleReportGenerator = consoleReportGenerator;
         this.htmlReportGenerator = htmlReportGenerator;
