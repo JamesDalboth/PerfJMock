@@ -40,16 +40,104 @@ To install and use PerfMock 2.0. Install the jar included in install-jars along 
 
 # Repeat method
 
+The users are not restricted to use the @PerfTest annotation and can achieve similar results like such. This allows them to easily add traditional assertions except this time over performance results.
+
+```
+@Rule
+public PerfRule perfRule = new PerfRule(new ConsoleReportGenerator());
+
+@Rule
+public PerfMockery ctx = new PerfMockery(perfRule);
+
+private final ExampleObject exampleObject = ctx.mock(ExampleObject.class);
+
+@Test
+@PerfTest(iterations = 2000, warmups = 10)
+public void exampleTest() {
+    ctx.repeat(2000, 100, () -> {
+        SUT sut = new SUT(exampleObject);
+    
+        ctx.checking(new Expectations() {{
+            allowing(exampleObject).doSomething(); will(returnValue(null)); taking(seconds(new Uniform(5.0, 10.0)));
+        }});
+
+        sut.run();
+    });
+    
+    assertThat(ctx.perfResults().meanMeasuredTime(), lessThan(6000.0));
+}
+```
+
 # PerfRequirements
+
+Like above the users can add performance requirements to tests using the annotation, to achieve this we use the perfrequirement annotation. We can add as many requirements as we want.
+
+```
+@Rule
+public PerfRule perfRule = new PerfRule(new ConsoleReportGenerator());
+
+@Rule
+public PerfMockery ctx = new PerfMockery(perfRule);
+
+private final ExampleObject exampleObject = ctx.mock(ExampleObject.class);
+
+@Test
+@PerfTest(iterations = 2000, warmups = 10)
+@PerfRequirement(mode = PerfMode.MEAN, comparator = PerfComparator.LESS_THAN, value = 6000)
+public void exampleTest() {
+    SUT sut = new SUT(exampleObject);
+
+    ctx.checking(new Expectations() {{
+        allowing(exampleObject).doSomething(); will(returnValue(null)); taking(seconds(new Uniform(5.0, 10.0)));
+    }});
+
+    sut.run();
+}
+```
 
 # HTML Reports
 
 # Performance Models
 
+The user is free to choose from a variety of performance models, including
+
+1. Constant distributions
+2. Uniform distributions
+3. Normal distributions
+4. Exponential distributions
+5. more
+
+The user is also free to implement their own performance model by implementing the perfmodel interface. Doing this will allow the developer to create a performance model which is dependent on how many times it has been invoked or past invokations of other mock objects.
+
 # Using Empircal Models
+
+For hierarchical programs, the users can export data from a test into a csv file. This is done using the CSVGenerator
+
+```
+    @Rule
+    public PerfRule perfRule = new PerfRule(new CSVGenerator());
+```
+
+Later in another test, we can import this data into an empircal model
+
+```
+    PerfModel model = new Discrete("csvfile.csv");
+```
 
 # Test for programs using threads
 
+// TODO
+
 # Test for program using an executor service
 
+// TODO
+
 # Ignoring sections
+
+occasionally there may be periods of code in the test which the developer may wish to ignore from the calculations. We can do this by wrapping that execution in ignore like such
+
+```
+ctx.ignore(() -> {
+    \\ code here
+});
+```
